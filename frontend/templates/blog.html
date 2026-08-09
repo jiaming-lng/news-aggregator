@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客 - TechNews | 原创技术文章</title>
+  <meta name="description" content="TechNews 博客 - 分享技术见解、开发经验和行业思考。">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M4 22h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z'/><path d='M18 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2'/><path d='M8 10h6'/><path d='M8 14h6'/><path d='M8 18h4'/></svg>">
+</head>
+<body>
+
+<a href="#mainContent" class="skip-link">跳转到主要内容</a>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="TechNews 首页">
+      <span class="logo-text">Tech<span class="logo-accent">News</span></span>
+    </a>
+
+    <nav class="nav-tabs" aria-label="页面导航">
+      <a href="/" class="nav-back-link">资讯</a>
+      <span class="nav-tab active" aria-current="page">博客</span>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/admin" class="admin-link">管理</a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换亮色/暗色主题"></button>
+    </div>
+  </div>
+</header>
+
+<main class="main-content" id="mainContent">
+  <div class="blog-header">
+    <h1 class="blog-page-title">博客</h1>
+    <p class="blog-page-subtitle">原创技术文章 · 开发经验 · 行业思考</p>
+  </div>
+
+  <div class="blog-filter-bar">
+    <div class="blog-categories" role="group" aria-label="文章分类">
+      <button class="blog-cat-btn active" data-category="all">全部</button>
+      <button class="blog-cat-btn" data-category="tech">科技</button>
+      <button class="blog-cat-btn" data-category="ai">AI</button>
+      <button class="blog-cat-btn" data-category="opensource">开源</button>
+    </div>
+  </div>
+
+  <div class="blog-list" id="blogList">
+    <div class="loading-indicator">
+      <div class="spinner"></div>
+      <div>正在加载博客文章...</div>
+    </div>
+  </div>
+
+  <nav class="pagination" id="blogPagination" aria-label="博客分页导航"></nav>
+</main>
+
+<footer class="footer">
+  <p>TechNews 资讯聚合网站 · 博客 · 原创内容</p>
+</footer>
+
+<div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/blog.js"></script>
+</body>
+</html>

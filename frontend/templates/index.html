@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechNews - 全球科技资讯聚合 | AI动态·开源项目·科技新闻</title>
+  <meta name="description" content="TechNews 实时聚合 GitHub、Hacker News、Bilibili、科技博客等平台的科技资讯，涵盖 AI 动态、开源项目发布、科技新闻等领域，每 30 分钟自动更新。">
+  <meta name="keywords" content="科技资讯,AI动态,开源项目,科技新闻,技术聚合,TechNews,GitHub,HackerNews,Bilibili">
+  <meta name="author" content="TechNews">
+
+  <!-- Open Graph 社交分享 -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="TechNews">
+  <meta property="og:title" content="TechNews - 全球科技资讯聚合">
+  <meta property="og:description" content="实时聚合 GitHub、Hacker News、Bilibili、科技博客等平台科技资讯，每 30 分钟自动更新。">
+  <meta property="og:url" content="http://localhost:5000/">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TechNews - 全球科技资讯聚合">
+  <meta name="twitter:description" content="实时聚合 GitHub、Hacker News、Bilibili、科技博客等平台科技资讯，每 30 分钟自动更新。">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M4 22h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z'/><path d='M18 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2'/><path d='M8 10h6'/><path d='M8 14h6'/><path d='M8 18h4'/></svg>">
+
+  <!-- Schema.org 结构化数据 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "TechNews",
+    "description": "全球科技资讯聚合平台，实时收集 AI 动态、开源项目和科技新闻",
+    "url": "http://localhost:5000/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "http://localhost:5000/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+<body>
+
+<!-- 跳转到内容（无障碍） -->
+<a href="#mainContent" class="skip-link">跳转到主要内容</a>
+
+<!-- 顶部导航栏 -->
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="TechNews 首页">
+      <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z"/><path d="M18 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2"/><path d="M8 10h6"/><path d="M8 14h6"/><path d="M8 18h4"/></svg>
+      <span>Tech<span class="logo-accent">News</span></span>
+    </a>
+
+    <nav class="nav-tabs" role="tablist" aria-label="资讯分类">
+      <button class="nav-tab active" data-category="all" role="tab" aria-selected="true" aria-current="page">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> 全部
+      </button>
+      <button class="nav-tab" data-category="tech" role="tab" aria-selected="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> 科技
+      </button>
+      <button class="nav-tab" data-category="ai" role="tab" aria-selected="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg> AI
+      </button>
+      <button class="nav-tab" data-category="opensource" role="tab" aria-selected="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/><path d="M5 5l14 14"/><path d="M19 5L5 19"/></svg> 开源
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/blog" class="nav-back-link" title="博客" aria-label="博客">
+        博客
+      </a>
+      <a href="/admin" class="admin-link" title="管理后台" aria-label="管理后台">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg> 管理
+      </a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换亮色/暗色主题"></button>
+      <button class="login-btn" id="loginBtn" title="登录/注册" aria-label="登录或注册">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        登录
+      </button>
+      <div class="user-menu" id="userMenu" style="display:none;">
+        <button class="user-menu-trigger" title="用户菜单" aria-label="用户菜单" aria-haspopup="true" aria-expanded="false">
+          <span class="user-avatar" id="userAvatar"></span>
+          <span class="user-name" id="userName"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="user-dropdown">
+          <a href="/favorites" class="user-dropdown-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
+            我的收藏
+          </a>
+          <button class="user-dropdown-item" id="logoutBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            退出登录
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- 爬虫停摆告警条（看门狗检测到异常时显示） -->
+<div class="crawler-alert" id="crawlerAlert" role="alert" aria-live="polite" style="display:none;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span>爬虫可能已停摆：距上次更新已超过 <strong id="crawlerAlertMinutes">--</strong> 分钟</span>
+</div>
+
+<!-- 搜索区域 -->
+<section class="search-section">
+  <div class="search-bar-wrapper">
+    <div class="search-input-group">
+      <label for="searchInput" class="sr-only">搜索科技资讯、AI 动态、开源项目</label>
+      <span class="search-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <input type="text" class="search-input" id="searchInput"
+             placeholder="搜索科技资讯、AI 动态、开源项目..."
+             aria-label="搜索资讯">
+    </div>
+    <div class="sort-toggle" role="group" aria-label="排序方式">
+      <button class="sort-btn active" data-sort="latest" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 最新</button>
+      <button class="sort-btn" data-sort="hot" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5Z"/></svg> 热门</button>
+    </div>
+  </div>
+</section>
+
+<!-- 主内容区 -->
+<main class="main-content" id="mainContent">
+  <!-- 热门推荐 -->
+  <section class="hot-section" id="hotSection" aria-label="热门推荐">
+    <h2 class="section-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5Z"/></svg> 热门推荐</h2>
+    <div class="hot-scroll-wrapper">
+      <button class="hot-scroll-btn hot-scroll-prev" aria-label="向左滚动热门推荐" type="button">‹</button>
+      <div class="hot-scroll" id="hotScroll">
+        <!-- SSR:HOT -->
+      </div>
+      <button class="hot-scroll-btn hot-scroll-next" aria-label="向右滚动热门推荐" type="button">›</button>
+    </div>
+  </section>
+
+  <!-- 资讯信息流 -->
+  <h2 class="section-title section-title-bar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z"/><path d="M18 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2"/><path d="M8 10h6"/><path d="M8 14h6"/><path d="M8 18h4"/></svg> 最新资讯</h2>
+  <div class="article-grid" id="articleGrid">
+    <!-- SSR:ARTICLES -->
+  </div>
+
+  <!-- 分页 -->
+  <nav class="pagination" id="pagination" aria-label="分页导航">
+    <!-- SSR:PAGINATION -->
+  </nav>
+</main>
+
+<!-- 页脚 -->
+<footer class="footer">
+  <p>TechNews 资讯聚合网站 · 数据来源: GitHub / Hacker News / Bilibili / Reddit / 科技博客 · 每 30 分钟自动更新</p>
+</footer>
+
+<!-- Toast 提示 -->
+<div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+<!-- SSR 数据（供 JS 初始化状态） -->
+<!-- SSR:DATA -->
+
+<script src="/js/theme.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/crawler-status.js"></script>
+</body>
+</html>

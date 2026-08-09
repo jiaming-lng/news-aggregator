@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客管理 - TechNews</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M4 22h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z'/><path d='M18 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2'/><path d='M8 10h6'/><path d='M8 14h6'/><path d='M8 18h4'/></svg>">
+</head>
+<body>
+
+<a href="#adminContent" class="skip-link">跳转到主要内容</a>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="TechNews 首页">
+      <span class="logo-text">Tech<span class="logo-accent">News</span></span>
+    </a>
+
+    <nav class="nav-tabs" aria-label="页面导航">
+      <a href="/" class="nav-back-link">首页</a>
+      <a href="/admin" class="nav-back-link">仪表盘</a>
+      <span class="nav-tab active" aria-current="page">博客管理</span>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/blog" class="admin-link">查看博客</a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换亮色/暗色主题"></button>
+    </div>
+  </div>
+</header>
+
+<div class="admin-wrapper" id="adminContent">
+
+  <div class="admin-header">
+    <h1>博客管理</h1>
+    <p class="breadcrumb"><a href="/">首页</a> / <a href="/admin">管理</a> / 博客管理</p>
+  </div>
+
+  <div class="blog-admin-layout">
+    <!-- 移动端编辑提示 -->
+    <div class="mobile-edit-notice">提示：博客编辑器在桌面端体验更佳，移动端仅支持查看和基本操作</div>
+    <!-- 左侧：文章列表 -->
+    <div class="blog-admin-list">
+      <div class="blog-admin-toolbar">
+        <h3>文章列表</h3>
+        <button class="btn-create-post" id="btnNewPost">+ 新建文章</button>
+      </div>
+      <div id="postList" class="post-list">
+        <p style="color: var(--text-muted); padding: 20px;">加载中...</p>
+      </div>
+    </div>
+
+    <!-- 右侧：编辑器 -->
+    <div class="blog-admin-editor" id="editorPanel" style="display: none;">
+      <div class="editor-header">
+        <h3 id="editorTitle">新建文章</h3>
+        <div class="editor-actions">
+          <button class="btn-save-draft" id="btnSaveDraft">存为草稿</button>
+          <button class="btn-publish" id="btnPublish">发布</button>
+          <button class="btn-delete" id="btnDelete" style="display: none;">删除</button>
+          <button class="btn-cancel" id="btnCancel">取消</button>
+        </div>
+      </div>
+
+      <div class="editor-form">
+        <div class="form-row">
+          <label for="postTitle">标题</label>
+          <input type="text" id="postTitle" placeholder="输入文章标题..." class="form-input">
+        </div>
+
+        <div class="form-row form-row-inline">
+          <div>
+            <label for="postCategory">分类</label>
+            <select id="postCategory" class="form-select">
+              <option value="tech">科技</option>
+              <option value="ai">AI</option>
+              <option value="opensource">开源</option>
+            </select>
+          </div>
+          <div>
+            <label for="postAuthor">作者</label>
+            <input type="text" id="postAuthor" placeholder="作者名" value="TechNews" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="postExcerpt">摘要（可选，留空自动生成）</label>
+          <input type="text" id="postExcerpt" placeholder="文章摘要..." class="form-input">
+        </div>
+
+        <div class="form-row">
+          <label for="postContent">内容（支持 HTML）</label>
+          <div class="editor-toolbar">
+            <button type="button" class="toolbar-btn" data-action="bold" title="加粗"><b>B</b></button>
+            <button type="button" class="toolbar-btn" data-action="italic" title="斜体"><i>I</i></button>
+            <button type="button" class="toolbar-btn" data-action="h2" title="标题">H2</button>
+            <button type="button" class="toolbar-btn" data-action="h3" title="小标题">H3</button>
+            <button type="button" class="toolbar-btn" data-action="link" title="链接">Link</button>
+            <button type="button" class="toolbar-btn" data-action="code" title="代码">Code</button>
+            <button type="button" class="toolbar-btn" data-action="ul" title="无序列表">UL</button>
+            <button type="button" class="toolbar-btn" data-action="ol" title="有序列表">OL</button>
+            <button type="button" class="toolbar-btn" data-action="p" title="段落">P</button>
+          </div>
+          <textarea id="postContent" placeholder="输入文章内容，支持 HTML 格式..." class="form-textarea" rows="20"></textarea>
+        </div>
+
+        <div class="form-row">
+          <label>预览</label>
+          <div id="postPreview" class="post-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 空状态提示 -->
+    <div class="blog-admin-empty" id="emptyState">
+      <p style="color: var(--text-muted); padding: 40px; text-align: center;">
+        点击「新建文章」开始写作，或从左侧选择一篇文章进行编辑。
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+<script src="/js/theme.js?v=12"></script>
+<script src="/js/auth.js?v=12"></script>
+<script src="/js/admin-blog.js?v=12"></script>
+</body>
+</html>

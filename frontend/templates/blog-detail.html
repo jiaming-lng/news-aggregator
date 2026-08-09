@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章 - TechNews 博客</title>
+  <meta name="description" content="TechNews 博客 - 原创技术文章与开发经验分享">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M4 22h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16Z'/><path d='M18 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2'/><path d='M8 10h6'/><path d='M8 14h6'/><path d='M8 18h4'/></svg>">
+</head>
+<body>
+
+<a href="#mainContent" class="skip-link">跳转到主要内容</a>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="TechNews 首页">
+      <span class="logo-text">Tech<span class="logo-accent">News</span></span>
+    </a>
+
+    <nav class="nav-tabs" aria-label="页面导航">
+      <a href="/" class="nav-back-link">资讯</a>
+      <a href="/blog" class="nav-back-link">博客</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/admin" class="admin-link">管理</a>
+      <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换亮色/暗色主题"></button>
+    </div>
+  </div>
+</header>
+
+<main class="main-content" id="mainContent">
+  <div id="blogDetailContent" role="article">
+    <div class="loading-indicator">
+      <div class="spinner"></div>
+      <div>正在加载文章...</div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <p>TechNews 资讯聚合网站 · 博客 · 原创内容</p>
+</footer>
+
+<div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/blog-detail.js"></script>
+</body>
+</html>

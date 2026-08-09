@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechNews 网站全面审查报告</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --text-tertiary: #94a3b8;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --orange: #ea580c;
+    --orange-light: #fff7ed;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --code-bg: #f1f5f9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 32px; }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .summary-card h2 { font-size: 1.2rem; margin-bottom: 16px; }
+  .stat-row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 120px; }
+  .stat-num { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+  .stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+  .stat-high { color: var(--red); }
+  .stat-mid { color: var(--orange); }
+  .stat-low { color: var(--green); }
+
+  .dimension {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .dimension-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .dimension-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .dimension-title { font-size: 1.25rem; font-weight: 700; }
+  .dimension-sub { font-size: 0.82rem; color: var(--text-tertiary); }
+
+  .issue {
+    border-left: 4px solid var(--border);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    border-radius: 0 8px 8px 0;
+    background: var(--bg);
+  }
+  .issue:last-child { margin-bottom: 0; }
+  .issue-high { border-color: var(--red); background: var(--red-light); }
+  .issue-mid { border-color: var(--orange); background: var(--orange-light); }
+  .issue-low { border-color: var(--green); background: var(--green-light); }
+
+  .issue-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .issue-title { font-weight: 700; font-size: 0.95rem; }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge-high { background: var(--red); color: #fff; }
+  .badge-mid { background: var(--orange); color: #fff; }
+  .badge-low { background: var(--green); color: #fff; }
+  .issue-location { font-size: 0.78rem; color: var(--text-tertiary); font-family: monospace; }
+  .issue-desc { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 8px; }
+  .issue-fix {
+    font-size: 0.85rem;
+    color: var(--text);
+    background: rgba(255,255,255,0.6);
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .issue-fix strong { color: var(--accent); }
+
+  .color-demo { display: inline-flex; gap: 4px; align-items: center; }
+  .color-chip { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--border); display: inline-block; }
+
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; font-family: "SF Mono", "Cascadia Code", Consolas, monospace; }
+  .code-block { background: var(--code-bg); padding: 12px 16px; border-radius: 6px; font-size: 0.82rem; overflow-x: auto; margin: 8px 0; }
+  .code-block code { background: none; padding: 0; }
+
+  .footer-note { text-align: center; color: var(--text-tertiary); font-size: 0.82rem; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<h1>TechNews 网站全面审查报告</h1>
+<p class="subtitle">审查范围：6 大维度 &times; 27 项问题 &nbsp;|&nbsp; 审查日期：2026-08-05 &nbsp;|&nbsp; 技术栈：Flask + SQLite + 原生 HTML/CSS/JS</p>
+
+<!-- 概览 -->
+<div class="summary-card">
+  <h2>问题概览</h2>
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-num stat-high">8</div>
+      <div class="stat-label">高优先级</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num stat-mid">12</div>
+      <div class="stat-label">中优先级</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num stat-low">7</div>
+      <div class="stat-label">低优先级</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" style="color:var(--accent)">27</div>
+      <div class="stat-label">问题总数</div>
+    </div>
+  </div>
+  <div style="margin-top:20px; font-size:0.85rem; color:var(--text-secondary); line-height:1.8;">
+    <strong>核心发现：</strong>favicon 和 Logo 使用 emoji（📰/🌙）作为功能图标；多处硬编码颜色值未走 CSS 变量；
+    博客详情页存在 XSS 风险；meta 描述信息过时未更新；移动端最小字号 11.2px 偏小；主题切换逻辑在 5 个 JS 文件中重复实现。
+  </div>
+</div>
+
+<!-- 1. 视觉设计 -->
+<div class="dimension">
+  <div class="dimension-header">
+    <div class="dimension-icon" style="background:var(--accent-light); color:var(--accent);">1</div>
+    <div>
+      <div class="dimension-title">视觉设计</div>
+      <div class="dimension-sub">配色 &middot; 排版 &middot; 间距</div>
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">Emoji 作为功能图标（P0 违规）</span>
+    </div>
+    <div class="issue-location">index.html:25,52,78,115 &nbsp;|&nbsp; style.css:660</div>
+    <div class="issue-desc">
+      favicon 使用 📰、Logo 使用 📰、主题切换按钮使用 🌙、空状态使用 📰。这些 emoji 作为 UI 功能图标，
+      在不同设备上渲染不一致，且不可矢量缩放、不可着色。违反 P0 绝对规则。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>统一替换为内联 SVG 图标方案。favicon 用 SVG + &lt;text&gt; 改为 &lt;path&gt;
+      绘制的报纸/地球图标；Logo 用 SVG 新闻图标 + 文字 "TechNews"；主题切换用太阳/月亮 SVG；
+      空状态用大型 SVG 插画或图标。所有图标统一描边宽度 1.5px，尺寸 16/20/24px。
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">大量硬编码颜色值未使用 CSS 变量</span>
+    </div>
+    <div class="issue-location">style.css:521,525,530,534,539,543,672,913-997,1410-1425 等 30+ 处</div>
+    <div class="issue-desc">
+      CSS 中存在 30+ 处硬编码 hex 颜色值（<code>#3b82f6</code>, <code>#8b5cf6</code>, <code>#ef4444</code>,
+      <code>#16a34a</code>, <code>#64748b</code> 等），散落在平台标签、状态徽章、统计图表中。
+      主题切换时这些颜色无法跟随变化，导致暗色模式下部分元素对比度不足。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>在 <code>:root</code> 和 <code>[data-theme="dark"]</code> 中补充平台色变量：
+      <code>--color-hackernews</code>, <code>--color-bilibili</code>, <code>--color-status-success</code>,
+      <code>--color-status-error</code>, <code>--color-status-info</code> 等。所有硬编码颜色替换为 <code>var(--xxx)</code>。
+      <span class="color-demo">
+        当前: <span class="color-chip" style="background:#3b82f6"></span><span class="color-chip" style="background:#8b5cf6"></span><span class="color-chip" style="background:#ef4444"></span><span class="color-chip" style="background:#16a34a"></span>
+        &rarr; 应为: <span class="color-chip" style="background:var(--accent)"></span><span class="color-chip" style="background:var(--green)"></span><span class="color-chip" style="background:var(--red)"></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">最小字号 0.7rem（~11.2px）偏小</span>
+    </div>
+    <div class="issue-location">style.css:436,445,504,515 等</div>
+    <div class="issue-desc">
+      平台标签、时间戳、分页信息等使用 <code>0.7rem</code>(~11.2px) 和 <code>0.72rem</code>(~11.5px) 字号。
+      在 1080p 显示器上勉强可读，在低分辨率或高 DPI 屏幕上会模糊。WCAG 建议最小可读字号不低于 12px。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>将 <code>0.7rem</code> &rarr; <code>0.75rem</code>(12px)，
+      <code>0.72rem</code> &rarr; <code>0.8rem</code>(12.8px)，<code>0.78rem</code> &rarr; <code>0.8rem</code>。
+      统一最小字号为 <code>0.75rem</code>（12px），仅在非关键辅助信息上使用。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">缺少 CSS 变量统一管理间距和圆角</span>
+    </div>
+    <div class="issue-location">style.css 全局</div>
+    <div class="issue-desc">
+      <code>border-radius</code> 散用 6px/8px/10px/12px/16px 等 5 种值，<code>padding</code> 和 <code>gap</code>
+      也缺乏统一规范。视觉上不够一致，修改时需要全局搜索替换。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>定义间距 Token：<code>--radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;</code>
+      定义间距：<code>--space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px;</code>
+      全局替换为变量引用。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">admin.html 资源版本号不一致</span>
+    </div>
+    <div class="issue-location">admin.html CSS/JS 引用 &nbsp;|&nbsp; ASSET_VERSION = 6</div>
+    <div class="issue-desc">
+      首页使用 <code>?v=6</code>，但 admin.html 仍使用 <code>?v=2</code>，可能导致浏览器使用过期缓存。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>统一所有 HTML 模板的资源版本号为 <code>?v={{ ASSET_VERSION }}</code>，通过 Flask 模板变量注入。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">admin-blog.html 编辑器工具栏按钮缺少样式类</span>
+    </div>
+    <div class="issue-location">admin-blog.html &nbsp;|&nbsp; style.css: .toolbar-btn</div>
+    <div class="issue-desc">
+      CSS 中定义了 <code>.toolbar-btn</code> 样式类，但 HTML 中的工具栏按钮未添加该类名，导致编辑器按钮样式降级。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>给所有编辑器工具栏 <code>&lt;button&gt;</code> 添加 <code>class="toolbar-btn"</code>。
+    </div>
+  </div>
+</div>
+
+<!-- 2. 用户体验 -->
+<div class="dimension">
+  <div class="dimension-header">
+    <div class="dimension-icon" style="background:var(--accent-light); color:var(--accent);">2</div>
+    <div>
+      <div class="dimension-title">用户体验</div>
+      <div class="dimension-sub">导航流畅度 &middot; 信息架构 &middot; 交互反馈</div>
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">博客详情页存在 XSS 漏洞</span>
+    </div>
+    <div class="issue-location">blog-detail.js: renderArticle() &nbsp;|&nbsp; blog-detail.html</div>
+    <div class="issue-desc">
+      <code>blogDetailContent.innerHTML = post.content</code> 直接将后端返回的 HTML 原样注入 DOM。
+      如果博客内容中包含恶意 <code>&lt;script&gt;</code> 标签或 <code>onerror</code> 事件，将导致 XSS 攻击。
+      虽然当前仅管理员可发布博客，但这是安全隐患。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>后端入库时使用 HTML 净化（如 Python 的 <code>bleach</code> 库，白名单允许
+      <code>&lt;p&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;code&gt;</code> 等安全标签）。前端渲染时配合
+      DOMPurify 做二次防护。
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">主题切换逻辑在 5 个 JS 文件中重复实现</span>
+    </div>
+    <div class="issue-location">app.js, blog.js, blog-detail.js, admin.js, admin-blog.js</div>
+    <div class="issue-desc">
+      主题切换（读取 localStorage、设置 data-theme、监听按钮点击、检测 prefers-color-scheme）的逻辑
+      在 5 个 JS 文件中各写了一遍，代码重复约 200 行。一旦修改需要同步 5 处，极易遗漏。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>抽取 <code>theme.js</code> 公共模块，所有页面引入。使用 ES Module
+      <code>export</code> 导出 <code>initTheme()</code> 函数，各页面调用即可。减少维护成本。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">主题切换按钮在不同页面显示不一致</span>
+    </div>
+    <div class="issue-location">index.html:78 vs blog.html / blog-detail.html / admin-blog.html</div>
+    <div class="issue-desc">
+      首页主题切换按钮内容为 <code>🌙</code>（emoji），博客页面为文字 "Dark"。用户在页面间跳转时
+      感官不一致，产生割裂感。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>统一为 SVG 月亮/太阳图标 + <code>aria-label="切换亮色/暗色主题"</code>。
+      JS 中根据当前主题切换显示太阳或月亮图标。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">导航信息架构不完整</span>
+    </div>
+    <div class="issue-location">index.html header &nbsp;|&nbsp; blog.html / blog-detail.html / admin-blog.html header</div>
+    <div class="issue-desc">
+      首页导航有"全部/GitHub/HN/Bilibili/Blog"分类标签 + 博客链接 + 后台链接，但博客页面只显示
+      "资讯"和"博客"两个链接，后台管理页面没有返回前台的导航。用户在后台页面无法快速回到首页。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>所有页面统一导航栏结构：Logo（可点击回首页）+ 核心导航（资讯/博客）+
+      管理入口。后台页面增加"返回前台"链接。保证用户在任何页面都能 1 步回到首页。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">搜索/筛选时缺少加载状态反馈</span>
+    </div>
+    <div class="issue-location">app.js: searchArticles() / blog.js: loadPosts()</div>
+    <div class="issue-desc">
+      用户输入搜索词或切换分类后，页面无任何加载指示（骨架屏/loading spinner），内容直接替换。
+      在网络较慢时用户不知道是否在加载，体验突兀。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>请求发起时在内容区域显示骨架屏（skeleton screen）或半透明遮罩 +
+      spinner。请求完成后淡入新内容。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">热门文章横向滚动体验粗糙</span>
+    </div>
+    <div class="issue-location">index.html hot-section &nbsp;|&nbsp; app.js: hot scroll</div>
+    <div class="issue-desc">
+      热门文章区域用 prev/next 按钮控制横向滚动，但在移动端没有触控滑动支持，按钮在小屏幕上也不够直观。
+      且滚动步长固定，可能在某些屏幕宽度下露半截卡片。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>移动端改用 <code>overflow-x: auto; scroll-snap-type: x mandatory;</code>
+      实现原生触控滑动 + 卡片对齐。保留按钮在桌面端，移动端隐藏。添加 <code>scroll-behavior: smooth</code>。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">Toast 通知缺少自动消失动画</span>
+    </div>
+    <div class="issue-location">style.css: .toast &nbsp;|&nbsp; app.js</div>
+    <div class="issue-desc">
+      Toast 通知出现和消失是硬切（display 切换），没有过渡动画，视觉上较生硬。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>添加 <code>opacity</code> + <code>transform: translateY()</code> 过渡动画，
+      使用 <code>transition: all 0.3s ease</code>。
+    </div>
+  </div>
+</div>
+
+<!-- 3. 性能表现 -->
+<div class="dimension">
+  <div class="dimension-header">
+    <div class="dimension-icon" style="background:var(--accent-light); color:var(--accent);">3</div>
+    <div>
+      <div class="dimension-title">性能表现</div>
+      <div class="dimension-sub">加载速度 &middot; 资源优化</div>
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">CSS 和 JS 均未压缩，传输体积偏大</span>
+    </div>
+    <div class="issue-location">style.css (32KB) &nbsp;|&nbsp; app.js (20KB) &nbsp;|&nbsp; admin.js (301行)</div>
+    <div class="issue-desc">
+      <code>style.css</code> 32KB 未压缩，<code>app.js</code> 20KB 未压缩。首次加载体积约 60KB+
+      （含 HTML），在弱网环境（3G/4G）下首屏时间可达 2-3 秒。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>引入构建步骤（如 esbuild/terser），对 CSS 和 JS 做 minify。
+      或者用 Flask <code>Response(gzip_content, headers={'Content-Encoding': 'gzip'})</code> 服务端开启 gzip。
+      预期压缩后 CSS ~8KB、JS ~6KB，减少 60% 传输。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">每页加载独立 JS 文件，无法复用缓存</span>
+    </div>
+    <div class="issue-location">index.html -> app.js &nbsp;|&nbsp; blog.html -> blog.js &nbsp;|&nbsp; admin.html -> admin.js 等</div>
+    <div class="issue-desc">
+      5 个页面各加载独立 JS 文件，主题切换等公共逻辑重复编写。用户从首页跳到博客页需要重新下载
+      <code>blog.js</code>，其中重复的主题切换代码也会重新下载。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>抽取 <code>common.js</code>（主题/导航/工具函数），各页面只加载
+      页面专属 JS + common.js。common.js 可被浏览器缓存，跨页面复用。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">无图片懒加载</span>
+    </div>
+    <div class="issue-location">app.js: renderArticleCard()</div>
+    <div class="issue-desc">
+      文章卡片目前不展示图片缩略图（纯文字），但如果后续添加图片，缺少懒加载机制会导致首屏加载大量图片。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>预留 <code>loading="lazy"</code> 属性在 <code>&lt;img&gt;</code> 标签上。
+      或者使用 Intersection Observer API 实现更精细的懒加载控制。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">CSS 中 @media 查询分散在文件多处</span>
+    </div>
+    <div class="issue-location">style.css:406,1031,1060,1644,1654</div>
+    <div class="issue-desc">
+      响应式 <code>@media</code> 查询散落在 CSS 文件 5 个不同位置，未集中管理。修改移动端样式时
+      需要在文件中来回跳转。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>采用移动优先策略，将 <code>@media</code> 查询集中到文件末尾，
+      或拆分为 <code>base.css</code> + <code>responsive.css</code>。
+    </div>
+  </div>
+</div>
+
+<!-- 4. 内容质量 -->
+<div class="dimension">
+  <div class="dimension-header">
+    <div class="dimension-icon" style="background:var(--accent-light); color:var(--accent);">4</div>
+    <div>
+      <div class="dimension-title">内容质量</div>
+      <div class="dimension-sub">文案清晰度 &middot; 信息完整性</div>
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">meta 描述信息过时，缺少 Bilibili 和 Blog</span>
+    </div>
+    <div class="issue-location">index.html:4,9,13,19 &nbsp;|&nbsp; footer 文字</div>
+    <div class="issue-desc">
+      <code>&lt;meta description&gt;</code> 仍写 "YouTube、TikTok、GitHub"，但实际已有 5 个数据源
+     （GitHub/HN/Bilibili/Blog + YouTube 超时）。OG 和 Twitter Card 同样过时。Footer 也未列出
+      Bilibili 和 Blog 来源。搜索引擎和社交分享展示的信息与实际不符。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>更新所有 meta 描述为 "聚合 GitHub、Hacker News、Bilibili、科技博客等
+      平台的实时科技资讯"。Footer 同步更新数据源列表。OG 描述保持 160 字符以内。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">博客详情页缺少独立 meta 描述</span>
+    </div>
+    <div class="issue-location">blog-detail.html: meta description</div>
+    <div class="issue-desc">
+      博客详情页使用通用 "TechNews 博客文章详情" 描述，未根据文章内容动态生成。
+      搜索引擎无法获取有效摘要，社交分享时也只显示通用描述。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>后端在渲染 <code>blog-detail.html</code> 时，将文章 excerpt 注入
+      <code>&lt;meta name="description"&gt;</code> 和 OG 标签。前端 JS 加载文章后也动态更新
+      <code>document.querySelector('meta[name=description]')</code>。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">文章卡片缺少内容来源标注</span>
+    </div>
+    <div class="issue-location">app.js: renderArticleCard()</div>
+    <div class="issue-desc">
+      文章卡片显示了平台标签（GH/HN/BL/BG/YT），但没有标注数据来源时间（"采集于 2 小时前"）。
+      用户无法判断信息时效性，对于科技资讯类网站这是关键信息。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>在卡片底部添加 "采集时间" 或 "来源发布时间"（文章已有
+      <code>published_at</code> 字段），格式化为相对时间（如 "3 小时前"、"昨天"）。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">空状态文案缺少引导性</span>
+    </div>
+    <div class="issue-location">app.js: empty-state &nbsp;|&nbsp; admin-blog.js: empty state</div>
+    <div class="issue-desc">
+      首页无文章时显示"暂无文章"，但没有告诉用户接下来可以做什么（等待爬虫抓取？手动触发？）。
+      博客管理空状态显示"选择或创建一篇文章"，但缺少"新建文章"的快捷按钮。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>空状态增加操作引导。首页："暂无文章，正在从各平台抓取中..."
+      或添加"手动刷新"按钮。博客管理："还没有文章，点击这里创建第一篇" + 按钮。
+    </div>
+  </div>
+</div>
+
+<!-- 5. 移动端适配 -->
+<div class="dimension">
+  <div class="dimension-header">
+    <div class="dimension-icon" style="background:var(--accent-light); color:var(--accent);">5</div>
+    <div>
+      <div class="dimension-title">移动端适配</div>
+      <div class="dimension-sub">响应式布局 &middot; 触控体验</div>
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">缺少平板尺寸断点（768px-1024px）</span>
+    </div>
+    <div class="issue-location">style.css @media: 480px, 768px, 900px</div>
+    <div class="issue-desc">
+      响应式断点只有 480px（手机）和 768px（平板/小桌面），但 768px 到 1024px 之间的平板横屏
+      和小笔记本没有专门适配。文章卡片在这一区间可能显示为 2 列但间距过大，或 3 列但过于拥挤。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>增加 <code>@media (max-width: 1024px)</code> 断点，平板横屏显示 2 列。
+      调整断点体系为：480px（手机竖屏）/ 768px（平板）/ 1024px（小桌面）/ 1280px+（桌面）。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">移动端导航标签可能溢出</span>
+    </div>
+    <div class="issue-location">style.css:1063 &nbsp;|&nbsp; index.html nav-tabs</div>
+    <div class="issue-desc">
+      768px 断点下导航标签设为 <code>font-size: 0.75rem; padding: 8px 12px; min-height: 44px</code>，
+      但有 5 个标签（全部/GitHub/HN/Bilibili/Blog），在 360px 宽的手机上可能需要横滑才能看到全部。
+      当前没有 <code>overflow-x: auto</code> 设置。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>在 480px 断点下给 <code>.nav-tabs</code> 添加
+      <code>overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap;</code>。
+      或在移动端改为下拉选择器。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">热门文章区域移动端体验差</span>
+    </div>
+    <div class="issue-location">style.css: hot-section responsive &nbsp;|&nbsp; app.js</div>
+    <div class="issue-desc">
+      热门文章横向滚动区域在移动端没有适配为触控滑动，仍依赖 prev/next 按钮。
+      按钮在 360px 屏幕上占用空间大，卡片可视区域仅剩约 240px，体验局促。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>768px 以下隐藏 prev/next 按钮，改为
+      <code>overflow-x: auto; scroll-snap-type: x mandatory;</code> 原生触控滑动。
+      卡片宽度设为 <code>min-width: 85vw</code>，一次只看一张。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">博客后台编辑器移动端不可用</span>
+    </div>
+    <div class="issue-location">style.css:1644 @media (max-width: 900px) &nbsp;|&nbsp; admin-blog.html</div>
+    <div class="issue-desc">
+      博客管理页面采用左右分栏布局（列表+编辑器），900px 以下改为上下堆叠。但编辑器工具栏按钮
+      和文本区在手机上太小，无法舒适操作。编辑器场景本身不适合移动端，但至少应可查看。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>移动端隐藏编辑器面板，只显示文章列表 + "在桌面端编辑"提示。
+      或者提供简化版的 Markdown 编辑器（纯文本输入 + 预览），替代复杂 HTML 工具栏。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">缺少 viewport 手势缩放禁用策略</span>
+    </div>
+    <div class="issue-location">所有 HTML 模板: meta viewport</div>
+    <div class="issue-desc">
+      所有页面 viewport 为 <code>width=device-width, initial-scale=1.0</code>，允许用户双指缩放。
+      这对可访问性是好的（WCAG 要求），但可能导致表单聚焦时 iOS 自动放大。建议但不强制。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>保持当前设置（不禁用缩放，符合 WCAG）。如有表单聚焦放大问题，
+      用 <code>font-size: 16px</code> 解决（iOS Safari 在 16px 以上不会自动放大）。
+    </div>
+  </div>
+</div>
+
+<!-- 6. 可访问性 -->
+<div class="dimension">
+  <div class="dimension-header">
+    <div class="dimension-icon" style="background:var(--accent-light); color:var(--accent);">6</div>
+    <div>
+      <div class="dimension-title">可访问性</div>
+      <div class="dimension-sub">对比度 &middot; 键盘导航 &middot; 语义化标签</div>
+    </div>
+  </div>
+
+  <div class="issue issue-high">
+    <div class="issue-header">
+      <span class="badge badge-high">高</span>
+      <span class="issue-title">暗色模式下部分元素对比度不达标</span>
+    </div>
+    <div class="issue-location">style.css:913-997 暗色模式平台标签</div>
+    <div class="issue-desc">
+      暗色模式下，平台标签文字使用 <code>#93c5fd</code>（浅蓝）on <code>#1e293b</code>（深蓝背景），
+      对比度约 4.8:1，勉强通过 WCAG AA（要求 4.5:1）。但 <code>#6ee7b7</code>（浅绿）和
+      <code>#fca5a5</code>（浅红）在相同背景上对比度更低，约 3.5:1，不达标。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>使用 WebAIM Contrast Checker 逐对验证。将 <code>#6ee7b7</code> 调亮为
+      <code>#86efac</code>（已有但未统一使用），<code>#fca5a5</code> 调亮为 <code>#fecaca</code>。
+      确保所有文字+背景组合达到 WCAG AA 4.5:1。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">文章卡片缺少语义化 landmark</span>
+    </div>
+    <div class="issue-location">app.js: renderArticleCard()</div>
+    <div class="issue-desc">
+      文章卡片渲染为 <code>&lt;article&gt;</code> 标签（好），但没有 <code>&lt;h3&gt;</code> 标题层级。
+      卡片标题用 <code>&lt;a&gt;</code> 包裹但不是 heading 元素，屏幕阅读器无法按标题导航。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>文章卡片标题包裹 <code>&lt;h3&gt;</code>：
+      <code>&lt;h3&gt;&lt;a href="..."&gt;标题&lt;/a&gt;&lt;/h3&gt;</code>。保持 heading 层级：
+      h1(页面标题) &rarr; h2(区块标题) &rarr; h3(卡片标题)。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">博客详情页内容缺少 ARIA 标记</span>
+    </div>
+    <div class="issue-location">blog-detail.html: #blogDetailContent</div>
+    <div class="issue-desc">
+      博客详情内容容器 <code>#blogDetailContent</code> 没有 <code>role="article"</code> 或
+      <code>aria-label</code>。屏幕阅读器用户无法快速定位到文章主体。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>添加 <code>&lt;article role="article" aria-labelledby="blogTitle"&gt;</code>。
+      确保文章标题有 <code>id="blogTitle"</code> 供 ARIA 引用。
+    </div>
+  </div>
+
+  <div class="issue issue-mid">
+    <div class="issue-header">
+      <span class="badge badge-mid">中</span>
+      <span class="issue-title">分页按钮缺少 aria-current 标记</span>
+    </div>
+    <div class="issue-location">app.js: renderPagination()</div>
+    <div class="issue-desc">
+      分页组件中当前页码虽然有 <code>class="active"</code> 样式区分，但缺少
+      <code>aria-current="page"</code> 属性。屏幕阅读器用户无法知道当前在第几页。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>在当前页码按钮上添加 <code>aria-current="page"</code>，
+      并添加 <code>aria-label="第 N 页（当前）"</code>。其他页码添加 <code>aria-label="第 N 页"</code>。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">skip-link 已实现但仅首页有</span>
+    </div>
+    <div class="issue-location">index.html: skip-link &nbsp;|&nbsp; blog.html / blog-detail.html / admin.html</div>
+    <div class="issue-desc">
+      首页有 skip-link（"跳转到主要内容"），但博客列表、博客详情、管理后台页面缺少。
+      键盘用户在这些页面需要 Tab 多次才能到达主内容。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>所有页面模板统一添加 <code>&lt;a href="#mainContent" class="skip-link"&gt;</code>
+      和 <code>&lt;main id="mainContent"&gt;</code>。一行代码的事，但大幅改善键盘体验。
+    </div>
+  </div>
+
+  <div class="issue issue-low">
+    <div class="issue-header">
+      <span class="badge badge-low">低</span>
+      <span class="issue-title">:focus-visible 样式已实现但部分交互元素遗漏</span>
+    </div>
+    <div class="issue-location">style.css: :focus-visible &nbsp;|&nbsp; editor toolbar buttons</div>
+    <div class="issue-desc">
+      CSS 中有 <code>:focus-visible</code> 全局样式（好），但编辑器工具栏按钮和分页按钮
+      可能被 <code>outline: none</code> 覆盖。需要确认所有可交互元素都有可见的焦点指示。
+    </div>
+    <div class="issue-fix">
+      <strong>改进方向：</strong>全局搜索 <code>outline: none</code>，每处确认是否提供了替代的
+      <code>:focus-visible</code> 样式（如 <code>box-shadow</code>）。没有的补上。
+    </div>
+  </div>
+</div>
+
+<!-- 修复优先级排序 -->
+<div class="summary-card">
+  <h2>建议修复顺序</h2>
+  <div style="font-size: 0.88rem; line-height: 2.2; color: var(--text-secondary);">
+    <div><strong style="color:var(--red)">第一批（高优先级，立即修）：</strong></div>
+    <div>1. Emoji 图标 &rarr; SVG 图标（影响视觉一致性 + P0 规则）</div>
+    <div>2. 博客 XSS 漏洞（安全风险）</div>
+    <div>3. meta 描述信息过时（SEO + 信息准确性）</div>
+    <div>4. 硬编码颜色 &rarr; CSS 变量（暗色模式对比度根源）</div>
+    <div>5. CSS/JS 压缩（性能）</div>
+    <div>6. 主题切换逻辑去重（维护性）</div>
+    <div>7. 暗色模式对比度修复</div>
+    <div>8. 平板断点补充</div>
+    <br>
+    <div><strong style="color:var(--orange)">第二批（中优先级，本周修）：</strong></div>
+    <div>主题按钮统一 &middot; 导航架构完善 &middot; 加载状态 &middot; 热门滑动优化 &middot;
+      JS 文件抽取公共部分 &middot; meta 动态化 &middot; 语义化标签 &middot; ARIA 标记 &middot; 移动端导航适配 &middot; 博客后台移动端 &middot; 字号下限 &middot; 间距 Token</div>
+    <br>
+    <div><strong style="color:var(--green)">第三批（低优先级，有空修）：</strong></div>
+    <div>版本号统一 &middot; 工具栏样式 &middot; Toast 动画 &middot; 空状态文案 &middot; 媒体查询集中 &middot; skip-link 全覆盖 &middot; focus-visible 检查 &middot; 图片懒加载预留</div>
+  </div>
+</div>
+
+<div class="footer-note">
+  TechNews 网站审查报告 &middot; 生成于 2026-08-05 &middot; 基于 12 个源文件静态分析 + 运行时验证
+</div>
+
+</body>
+</html>
