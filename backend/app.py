@@ -713,10 +713,15 @@ def api_delete_blog_post(post_id):
 # SEO 辅助文件
 # ============================================================
 
+# 站点基础 URL（用于 SEO 文件生成）
+import os as _os
+BASE_URL = _os.environ.get('BASE_URL', 'http://106.53.58.166:5000').rstrip('/')
+
+
 @app.route('/robots.txt')
 def robots():
     """搜索引擎爬虫规则"""
-    body = "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: http://localhost:5000/sitemap.xml\n"
+    body = f"User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: {BASE_URL}/sitemap.xml\n"
     return Response(body, content_type='text/plain; charset=utf-8')
 
 
@@ -728,7 +733,7 @@ def sitemap():
 
     # 首页
     lines.append('  <url>')
-    lines.append('    <loc>http://localhost:5000/</loc>')
+    lines.append(f'    <loc>{BASE_URL}/</loc>')
     lines.append('    <changefreq>30min</changefreq>')
     lines.append('    <priority>1.0</priority>')
     lines.append('  </url>')
@@ -736,14 +741,14 @@ def sitemap():
     # 各分类页面
     for cat in ['tech', 'ai', 'opensource']:
         lines.append('  <url>')
-        lines.append(f'    <loc>http://localhost:5000/?category={cat}</loc>')
+        lines.append(f'    <loc>{BASE_URL}/?category={cat}</loc>')
         lines.append('    <changefreq>30min</changefreq>')
         lines.append('    <priority>0.8</priority>')
         lines.append('  </url>')
 
     # 博客页面
     lines.append('  <url>')
-    lines.append('    <loc>http://localhost:5000/blog</loc>')
+    lines.append(f'    <loc>{BASE_URL}/blog</loc>')
     lines.append('    <changefreq>daily</changefreq>')
     lines.append('    <priority>0.7</priority>')
     lines.append('  </url>')
@@ -847,8 +852,8 @@ def initialize():
 if __name__ == '__main__':
     # 初始化在启动前完成，避免首个请求阻塞
     initialize()
-    print("\n  访问地址: http://localhost:5000")
-    print("  管理后台: http://localhost:5000/admin\n")
+    print(f"\n  访问地址: {BASE_URL}")
+    print(f"  管理后台: {BASE_URL}/admin\n")
     # 生产环境关闭 debug，本地开发可通过环境变量开启
     is_debug = os.environ.get('FLASK_DEBUG', '0') == '1'
     port = int(os.environ.get('PORT', 5000))
