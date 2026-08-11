@@ -8,7 +8,7 @@ services:
     image: technews:latest
     container_name: technews
     ports:
-      # 宿主机:容器。若本机 5000 被占用（如 macOS AirPlay），改 "8080:5000"
+      # 宿主机:容器。若本机 5000 被占用（如 macOS AirPlay 或 WSL 服务），改 "8080:5000"
       - "5000:5000"
     environment:
       - FLASK_DEBUG=0
