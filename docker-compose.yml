@@ -14,8 +14,12 @@ services:
       - FLASK_DEBUG=0
       - TZ=Asia/Shanghai          # 容器时区，影响爬虫时间显示
     volumes:
-      # 持久化 SQLite 与爬虫数据：容器重建/升级后数据不丢
-      - technews-data:/app/backend/data
+      # bind mount：直接挂载宿主机现有的 backend/data 目录
+      # 迁移 VPS 时：现有 263 篇 SQLite 数据原地复用，零迁移、零丢失
+      # 容器内以 uid:gid=1000 运行；若 Linux 上报 Permission denied，
+      # 在宿主机执行：sudo chown -R 1000:1000 backend/data
+      - ./backend/data:/app/backend/data
+    user: "1000:1000"   # 与宿主机数据目录属主对齐（Windows/Mac 本地一般无需关心）
     restart: unless-stopped       # 崩溃/重启 Docker 后自动拉起
     healthcheck:
       # 用 /api/articles 探活（与 render.yaml 的 healthCheckPath 一致）
@@ -25,5 +29,3 @@ services:
       retries: 3
       start_period: 40s           # 给爬虫首次抓取留足时间
 
-volumes:
-  technews-data:                  # 命名卷，数据持久化在 Docker 管理的存储中

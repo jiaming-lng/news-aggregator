@@ -49,6 +49,12 @@ sudo systemctl stop technews
 sudo systemctl disable technews
 ```
 
+> **数据零丢失**：compose 用的是 bind mount（`./backend/data:/app/backend/data`），
+> 直接挂载 VPS 上现有的 `backend/data`，里面的 263 篇 SQLite 数据原地复用，无需迁移。
+>
+> **Linux 权限提示**：容器内以 uid:gid=1000 运行。若启动后报 `Permission denied` 写库，
+> 在宿主机执行一次：`sudo chown -R 1000:1000 backend/data`，再 `docker compose restart`。
+
 镜像升级流程（CI/CD 雏形）：
 ```bash
 git pull                 # 拉最新代码

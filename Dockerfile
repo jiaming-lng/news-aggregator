@@ -33,8 +33,8 @@ COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 
 # ---- 安全：用非 root 用户运行 ----
-RUN useradd -m appuser \
-    # 提前建好数据目录并赋予正确权限，named volume 首次挂载会继承此权限
+RUN useradd -m -u 1000 appuser \
+    # 提前建好数据目录并赋予正确权限，bind mount 时宿主机目录需与之属主对齐
     && mkdir -p /app/backend/data \
     && chown -R appuser:appuser /app
 USER appuser
