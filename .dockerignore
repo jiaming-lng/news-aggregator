@@ -1,0 +1,31 @@
+# 版本控制
+.git
+.gitignore
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 运行时数据（SQLite 数据库由容器启动时自动建/爬虫自动抓，无需打进镜像）
+# 持久化交给 docker-compose 的 named volume 负责
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+
+# 密钥与环境
+.env
+
+# 日志
+*.log
+server_out.log
+server_err.log
+
+# 非运行时文件（部署/说明/平台配置，不打进镜像）
+DEPLOY.md
+PROJECT_GUIDE.md
+render.yaml
+Procfile
+start_technews.vbs
+website-review.html

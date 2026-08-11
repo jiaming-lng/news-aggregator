@@ -1,0 +1,29 @@
+# ============================================================
+# TechNews docker-compose
+# 一条命令启动：docker compose up -d
+# ============================================================
+services:
+  technews:
+    build: .                      # 用同目录 Dockerfile 构建
+    image: technews:latest
+    container_name: technews
+    ports:
+      # 宿主机:容器。若本机 5000 被占用（如 macOS AirPlay），改 "8080:5000"
+      - "5000:5000"
+    environment:
+      - FLASK_DEBUG=0
+      - TZ=Asia/Shanghai          # 容器时区，影响爬虫时间显示
+    volumes:
+      # 持久化 SQLite 与爬虫数据：容器重建/升级后数据不丢
+      - technews-data:/app/backend/data
+    restart: unless-stopped       # 崩溃/重启 Docker 后自动拉起
+    healthcheck:
+      # 用 /api/articles 探活（与 render.yaml 的 healthCheckPath 一致）
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5000/api/articles', timeout=5).status==200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s           # 给爬虫首次抓取留足时间
+
+volumes:
+  technews-data:                  # 命名卷，数据持久化在 Docker 管理的存储中
