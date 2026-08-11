@@ -201,14 +201,26 @@ def get_articles(category=None, search=None, sort='latest', page=1, limit=20):
 
 
 def get_hot_articles(limit=10):
-    """获取热门推荐文章"""
+    """获取热门推荐文章（时衰热度：view_count / 自抓取以来的小时数）
+
+    设计目标：兼顾「新」与「热」。
+    - 新抓的爆款（小时级衰变）排名靠前
+    - 老爆款随时间衰变，但 24h 内抓的、有一定播放量的也能进榜
+    - 刚抓的博客（view=0）也会出现，但排在最末，不会被埋
+    """
     conn = get_db()
     cursor = conn.cursor()
 
     rows = cursor.execute("""
-        SELECT * FROM articles
-        WHERE is_hot = 1 OR view_count > 0
-        ORDER BY view_count DESC, published_at DESC
+        SELECT *,
+               (CAST(view_count AS REAL) / MAX(1.0,
+                   (julianday('now') - julianday(fetched_at)) * 24.0
+               )) AS hot_score
+        FROM articles
+        WHERE is_hot = 1
+           OR view_count >= 100
+           OR fetched_at >= datetime('now', '-24 hours')
+        ORDER BY hot_score DESC, fetched_at DESC
         LIMIT ?
     """, (limit,)).fetchall()
 
