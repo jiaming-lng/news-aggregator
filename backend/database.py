@@ -201,30 +201,45 @@ def get_articles(category=None, search=None, sort='latest', page=1, limit=20):
 
 
 def get_hot_articles(limit=10):
-    """获取热门推荐文章（时衰热度：view_count / 自抓取以来的小时数）
+    """获取热门推荐文章（混合榜：真热门视频 + 最新博客）
 
-    设计目标：兼顾「新」与「热」。
-    - 新抓的爆款（小时级衰变）排名靠前
-    - 老爆款随时间衰变，但 24h 内抓的、有一定播放量的也能进榜
-    - 刚抓的博客（view=0）也会出现，但排在最末，不会被埋
+    设计目标：兼顾「热」与「新」，让博客类内容也能上榜。
+    - 视频/有播放量的：按时衰热度（view_count / 自抓取以来的小时数）取前 7
+    - 博客类（view=0 无热度字段）：按新鲜度（fetched_at 倒序）取前 3
+    - 两部分合并后仍按热度排序：热门视频在前，最新博客垫后但不缺席
     """
     conn = get_db()
     cursor = conn.cursor()
 
-    rows = cursor.execute("""
+    # 有播放量的（视频/HN 等）：时衰热度 TOP (limit*7/10)
+    hot_videos = cursor.execute("""
         SELECT *,
                (CAST(view_count AS REAL) / MAX(1.0,
                    (julianday('now') - julianday(fetched_at)) * 24.0
                )) AS hot_score
         FROM articles
-        WHERE is_hot = 1
-           OR view_count >= 100
-           OR fetched_at >= datetime('now', '-24 hours')
-        ORDER BY hot_score DESC, fetched_at DESC
+        WHERE view_count > 0
+          AND fetched_at >= datetime('now', '-7 days')
+        ORDER BY hot_score DESC
         LIMIT ?
-    """, (limit,)).fetchall()
+    """, (max(1, limit * 7 // 10),)).fetchall()
 
-    articles = [dict(row) for row in rows]
+    # 博客类（无播放量字段）：最新 TOP (limit*3/10)
+    fresh_blogs = cursor.execute("""
+        SELECT *,
+               0 AS hot_score
+        FROM articles
+        WHERE (view_count = 0 OR view_count IS NULL)
+          AND fetched_at >= datetime('now', '-24 hours')
+        ORDER BY fetched_at DESC
+        LIMIT ?
+    """, (limit - len(hot_videos),)).fetchall()
+
+    # 合并后按热度降序（博客 hot_score=0 自然垫后，但不缺席）
+    merged = hot_videos + fresh_blogs
+    merged.sort(key=lambda r: r['hot_score'], reverse=True)
+
+    articles = [dict(row) for row in merged[:limit]]
     conn.close()
     return articles
 
