@@ -46,7 +46,7 @@ YOUTUBE_CHANNELS = {
 
 # Bilibili 搜索 API - 搜索科技/AI/开源相关视频（国内直连）
 BILIBILI_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/type"
-BILIBILI_KEYWORDS = ['AI', '开源', '编程']
+BILIBILI_KEYWORDS = ['AI', '开源', '编程', 'Agnes AI', '多模态AI', 'AI Agent']
 BILIBILI_RESULTS_PER_KEYWORD = 5  # 每个关键词取多少条
 
 # Tech Blog RSS Feeds - 科技博客 RSS/Atom 订阅源
@@ -61,6 +61,8 @@ BLOG_FEEDS = {
     "oschina":     "https://www.oschina.net/news/rss",               # 开源中国
     "linuxcn":     "https://linux.cn/rss.xml",                       # Linux 中国
     "cnbeta":      "https://rss.cnbeta.com/rss",                     # cnBeta
+    "csdn":        "https://blog.csdn.net/rss/rss.html",                 # CSDN 博客（Agnes 相关文章主要来源）
+    "taibakeji":   "https://www.36kr.com/feed",                          # 钛媒体（科技深度报道，含 AI）
 }
 BLOG_POSTS_PER_FEED = 3  # 每个 feed 取最新几篇
 
@@ -87,10 +89,14 @@ AI_KEYWORDS = [
     'chatbot', 'nlp', 'computer vision', 'reinforcement learning',
     'pytorch', 'tensorflow', 'hugging face', 'langchain', 'embedding',
     'fine-tune', 'fine tune', 'inference', 'training', 'model',
+    # Agnes AI 相关
+    'agnes ai', 'agnes-ai', 'agnes ai', 'agness', 'agnes api',
+    'agnes video', 'agnes image', 'agnes-flash',
     # 中文关键词
     '人工智能', '机器学习', '深度学习', '大模型', '大语言模型',
     '神经网络', '自然语言处理', '计算机视觉', '强化学习',
     '智能体', '微调', '推理', '训练', '生成式',
+    '多模态', '文生视频', '视频生成', '文生图', '图像生成',
 ]
 
 # 开源关键词
