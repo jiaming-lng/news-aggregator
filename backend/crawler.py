@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 
 from database import insert_article, insert_crawl_log, update_crawl_log, get_db, cleanup_old_articles
+from crawler_enhancements import crawl_github_trending, crawl_ai_news
 
 
 # ============================================================
@@ -1038,6 +1039,8 @@ def run_crawl_job():
         ('blog', crawl_blogs),
         ('reddit', crawl_reddit),
         ('youtube', crawl_youtube),
+        ('github_trending', crawl_github_trending),   # 新增: GitHub Trending 热门项目
+        ('ai_news', crawl_ai_news),                   # 新增: AI 科技 RSS (IT之家/雷峰网/少数派等)
     ]
 
     total_fetched = 0
