@@ -331,10 +331,10 @@ def index():
 
 @app.route('/admin')
 def admin():
-    """管理后台（仅管理员）"""
-    user = _get_current_user()
-    if not user or not user.get('is_admin'):
-        return redirect('/')
+    """管理后台页面（纯前端壳，不含数据）
+    注意：页面导航不会携带 Bearer 请求头，登录校验在服务端做不了；
+    数据接口（/api/stats 等）由 require_admin 保护，前端 admin.js 负责权限提示。
+    """
     return send_from_directory(TEMPLATES_DIR, 'admin.html')
 
 
@@ -364,10 +364,7 @@ def blog_detail(post_id):
 
 @app.route('/admin/blog')
 def admin_blog():
-    """博客管理页（仅管理员）"""
-    user = _get_current_user()
-    if not user or not user.get('is_admin'):
-        return redirect('/')
+    """博客管理页面（纯前端壳，数据接口由 require_admin 保护）"""
     return send_from_directory(TEMPLATES_DIR, 'admin-blog.html')
 
 
