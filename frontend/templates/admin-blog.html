@@ -2,6 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('technews-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>博客管理 - TechNews</title>
   <meta name="robots" content="noindex, nofollow">
@@ -125,9 +126,9 @@
 
 <div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
 
-<script src="/js/theme.js?v=13"></script>
-<script src="/js/auth.js?v=13"></script>
-<script src="/js/sanitize.js?v=13"></script>
-<script src="/js/admin-blog.js?v=13"></script>
+<script src="/js/theme.js?v=14"></script>
+<script src="/js/auth.js?v=14"></script>
+<script src="/js/sanitize.js?v=14"></script>
+<script src="/js/admin-blog.js?v=14"></script>
 </body>
 </html>

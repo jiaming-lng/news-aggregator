@@ -2,6 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('technews-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我的收藏 - TechNews</title>
   <meta name="description" content="TechNews 我的收藏文章列表">

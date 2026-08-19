@@ -40,7 +40,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 # 静态资源版本号（修改静态文件时递增，用于缓存失效）
-ASSET_VERSION = '13'
+ASSET_VERSION = '14'
 
 # 管理员邮箱白名单（逗号分隔），注册时命中会自动授予管理员角色
 ADMIN_EMAILS = {

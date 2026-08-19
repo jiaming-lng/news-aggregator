@@ -2,6 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('technews-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TechNews - 全球科技资讯聚合 | AI动态·开源项目·科技新闻</title>
   <meta name="description" content="TechNews 实时聚合 GitHub、Hacker News、Bilibili、科技博客等平台的科技资讯，涵盖 AI 动态、开源项目发布、科技新闻等领域，每 30 分钟自动更新。">

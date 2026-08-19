@@ -296,10 +296,10 @@
     init();
   }
 
-  // 登录成功后自动刷新后台数据
+  // 登录状态变化时刷新数据（不要 location.reload，会与 init 触发的事件形成无限刷新循环）
   document.addEventListener('auth:stateChanged', function () {
     if (window.TechNewsAuth && window.TechNewsAuth.isLoggedIn()) {
-      location.reload();
+      refreshAll();
     }
   });
 
