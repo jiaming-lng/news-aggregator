@@ -8,7 +8,7 @@ import urllib.error
 import json
 import os
 
-BASE_URL = "http://106.53.58.166:5000"
+BASE_URL = "https://technews.dedyn.io"
 
 # 机器人账号密码从环境变量读取，不要硬编码提交到仓库
 # 用法（PowerShell）：$env:TECHNEWS_BOT_PASSWORD="..." ; python insert_agnes_via_api.py
@@ -170,7 +170,7 @@ def main():
         print()
     
     print('\n由于 TechNews 没有开放文章插入 API，建议：')
-    print('1. 访问 http://106.53.58.166:5000/admin 登录后台')
+    print('1. 访问 https://technews.dedyn.io/admin 登录后台')
     print('2. 使用上面提供的 token 登录（如果后台支持 token）')
     print('3. 或者等下次爬虫自动抓取（已添加 Agnes 关键词）')
 

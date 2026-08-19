@@ -9,11 +9,12 @@ services:
     container_name: technews
     ports:
       # 宿主机:容器。若本机 5000 被占用（如 macOS AirPlay 或 WSL 服务），改 "8080:5000"
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     environment:
       - FLASK_DEBUG=0
       - TZ=Asia/Shanghai          # 容器时区，影响爬虫时间显示
       - ADMIN_EMAILS=jiaming1899@qq.com
+      - BASE_URL=https://technews.dedyn.io
     volumes:
       # bind mount：直接挂载宿主机现有的 backend/data 目录
       # 迁移 VPS 时：现有 263 篇 SQLite 数据原地复用，零迁移、零丢失

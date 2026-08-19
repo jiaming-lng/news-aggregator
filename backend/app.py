@@ -40,7 +40,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 # 静态资源版本号（修改静态文件时递增，用于缓存失效）
-ASSET_VERSION = '14'
+ASSET_VERSION = '15'
 
 # 管理员邮箱白名单（逗号分隔），注册时命中会自动授予管理员角色
 ADMIN_EMAILS = {
@@ -918,7 +918,7 @@ def api_delete_blog_post(post_id):
 
 # 站点基础 URL（用于 SEO 文件生成）
 import os as _os
-BASE_URL = _os.environ.get('BASE_URL', 'http://106.53.58.166:5000').rstrip('/')
+BASE_URL = _os.environ.get('BASE_URL', 'https://technews.dedyn.io').rstrip('/')
 
 
 @app.route('/robots.txt')

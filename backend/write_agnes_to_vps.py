@@ -8,7 +8,7 @@ import urllib.error
 import json
 import os
 
-VPS_URL = "http://106.53.58.166:5000"
+VPS_URL = "https://technews.dedyn.io"
 
 # 管理员 token 从环境变量读取，不要硬编码提交到仓库
 # 用法（PowerShell）：$env:TECHNEWS_TOKEN="..." ; python write_agnes_to_vps.py

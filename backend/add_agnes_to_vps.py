@@ -9,7 +9,7 @@ import json
 import time
 import os
 
-VPS_URL = "http://106.53.58.166:5000"
+VPS_URL = "https://technews.dedyn.io"
 
 # 管理员 token 从环境变量读取，不要硬编码提交到仓库
 # 用法（PowerShell）：$env:TECHNEWS_TOKEN="..." ; python add_agnes_to_vps.py
@@ -125,7 +125,7 @@ def main():
     print(f'  爬虫结果: {crawl}')
     
     print('\n=== 完成 ===')
-    print('等 2-3 分钟后刷新 http://106.53.58.166:5000 查看结果')
+    print('等 2-3 分钟后刷新 https://technews.dedyn.io 查看结果')
 
 if __name__ == '__main__':
     main()

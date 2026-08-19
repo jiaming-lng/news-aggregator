@@ -9,7 +9,7 @@
 
 科技资讯聚合网站：Flask 后端 + 原生前端，定时从 GitHub / Hacker News / Bilibili / 博客 RSS / Reddit / YouTube / GitHub Trending / AI 科技媒体 RSS 抓取内容，统一展示、搜索、收藏。数据存 SQLite。
 
-- **线上地址**：http://106.53.58.166:5000
+- **线上地址**：https://technews.dedyn.io
 - **技术栈**：Flask 3 + SQLite + 原生 HTML/CSS/JS（无前端框架）+ Gunicorn + Docker
 - **Python**：3.10+（本地 3.13）
 
