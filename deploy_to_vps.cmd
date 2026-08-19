@@ -5,7 +5,7 @@ echo.
 echo 正在连接 VPS 并执行部署...
 echo.
 
-ssh -o StrictHostKeyChecking=no user@106.53.58.166 "bash -s" < deploy_remote.sh
+ssh -o StrictHostKeyChecking=no ubuntu@106.53.58.166 "bash -s" < deploy_remote.sh
 
 echo.
 echo === 部署完成 ===

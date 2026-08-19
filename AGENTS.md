@@ -55,7 +55,7 @@ python app.py          # 访问 http://localhost:5000
 VPS 信息（腾讯云轻量，广州七区，Ubuntu 22.04，2026-09-09 到期）：
 - **IP**：`106.53.58.166`
 - **用户**：`ubuntu`（不是 root、不是 user）
-- **密码**：`***REMOVED***`（腾讯云控制台获取；SSH 用此密码）
+- **SSH 登录**：密钥 `~/.ssh/id_ed25519_vps`；密码仅存于腾讯云控制台/本地机密，不写入仓库
 - **项目路径**：`/home/ubuntu/news-aggregator`
 - **容器名**：`technews`
 - **GitHub**：`jiaming-lng/news-aggregator`（SSH 免密推送）
