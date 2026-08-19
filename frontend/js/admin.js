@@ -69,7 +69,13 @@
       hackernews: { label: 'Hacker News', class: 'hackernews' },
       bilibili: { label: 'Bilibili', class: 'bilibili' },
       tiktok: { label: 'TikTok', class: 'tiktok' },
-      blog: { label: 'Blog', class: 'blog' }
+      blog: { label: 'Blog', class: 'blog' },
+      github_trending: { label: 'GitHub Trending', class: 'github' },
+      ithome: { label: 'IT之家', class: 'blog' },
+      leiphone: { label: '雷峰网', class: 'blog' },
+      sspai: { label: '少数派', class: 'blog' },
+      solidot: { label: 'Solidot', class: 'blog' },
+      oschina: { label: '开源中国', class: 'blog' }
     }, '数据来源平台分布');
 
     renderDailyTrend(stats.daily_new);
@@ -265,11 +271,18 @@
 
   // ---- 启动 ----
   function init() {
-    // 登录检查：未登录引导登录，不加载数据
+    // 权限检查：未登录引导登录，普通用户提示无权限
     if (window.TechNewsAuth && !window.TechNewsAuth.isLoggedIn()) {
       const container = document.getElementById('statsGrid');
       if (container) {
         container.innerHTML = '<p style="color: var(--text-muted); padding: 40px; text-align: center;">管理后台需要登录后才能访问 🔒<br><br><button onclick="window.TechNewsAuthModal.open(\'login\')" style="padding: 10px 28px; border-radius: 100px; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; cursor: pointer;">去登录</button></p>';
+      }
+      return;
+    }
+    if (window.TechNewsAuth && window.TechNewsAuth.user && !window.TechNewsAuth.user.is_admin) {
+      const container = document.getElementById('statsGrid');
+      if (container) {
+        container.innerHTML = '<p style="color: var(--text-muted); padding: 40px; text-align: center;">管理后台仅限管理员访问 🔒</p>';
       }
       return;
     }

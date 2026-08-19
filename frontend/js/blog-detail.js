@@ -26,6 +26,11 @@
   }
 
   function sanitizeHtml(html) {
+    // 优先使用共享消毒器（frontend/js/sanitize.js）
+    if (window.TechNewsSanitize) {
+      return window.TechNewsSanitize.sanitizeHtml(html);
+    }
+    // 兜底：简单移除 script 和事件属性
     var temp = document.createElement('div');
     temp.innerHTML = html || '';
     var scripts = temp.querySelectorAll('script');

@@ -26,17 +26,17 @@
   }
 
   function getPlatformColor(platform) {
-    var map = { youtube: '#FF0000', github: '#6e5494', hackernews: '#FF6600', bilibili: '#00A1D6', blog: '#0ea5e9', reddit: '#FF4500' };
+    var map = { youtube: '#FF0000', github: '#6e5494', hackernews: '#FF6600', bilibili: '#00A1D6', blog: '#0ea5e9', reddit: '#FF4500', github_trending: '#24292f', ithome: '#e60012', leiphone: '#00a383', sspai: '#e03e2d', solidot: '#ff6600', oschina: '#d2691e' };
     return map[platform] || '#64748b';
   }
 
   function getPlatformIcon(platform) {
-    var map = { youtube: 'YT', github: 'GH', hackernews: 'HN', bilibili: 'BL', blog: 'BG', reddit: 'RD' };
+    var map = { youtube: 'YT', github: 'GH', hackernews: 'HN', bilibili: 'BL', blog: 'BG', reddit: 'RD', github_trending: 'GT', ithome: 'IT', leiphone: 'LP', sspai: 'SP', solidot: 'SD', oschina: 'OS' };
     return map[platform] || '##';
   }
 
   function getPlatformName(platform) {
-    var map = { youtube: 'YouTube', github: 'GitHub', hackernews: 'Hacker News', bilibili: 'Bilibili', blog: 'Blog', reddit: 'Reddit' };
+    var map = { youtube: 'YouTube', github: 'GitHub', hackernews: 'Hacker News', bilibili: 'Bilibili', blog: 'Blog', reddit: 'Reddit', github_trending: 'GitHub Trending', ithome: 'IT之家', leiphone: '雷峰网', sspai: '少数派', solidot: 'Solidot', oschina: '开源中国' };
     return map[platform] || platform;
   }
 
@@ -89,7 +89,7 @@
       '</div>' +
       '<div class="article-actions">' +
         '<a href="' + detailUrl + '" class="btn-source">阅读详情</a>' +
-        (sourceUrl && sourceUrl !== '#' ? '<a href="' + sourceUrl + '" target="_blank" rel="noopener" class="btn-external">查看原文</a>' : '') +
+        (sourceUrl && sourceUrl !== '#' ? '<a href="' + escapeHtml(sourceUrl) + '" target="_blank" rel="noopener" class="btn-external">查看原文</a>' : '') +
         '<button class="fav-btn active" data-id="' + article.id + '" title="取消收藏">' +
           '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>' +
         '</button>' +

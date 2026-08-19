@@ -13,6 +13,7 @@ import html as html_module
 import secrets
 from datetime import datetime
 from functools import wraps
+from html.parser import HTMLParser
 
 # 确保 backend 目录在 Python 路径中
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +27,8 @@ from database import (
     get_article_by_id, get_related_articles,
     get_blog_posts, get_blog_post, create_blog_post, update_blog_post, delete_blog_post, increment_blog_view,
     create_user, get_user_by_email, get_user_by_id, create_session, get_session, delete_session,
-    add_favorite, remove_favorite, get_favorites, get_favorited_ids
+    add_favorite, remove_favorite, get_favorites, get_favorited_ids,
+    check_rate_limit, clear_rate_limit
 )
 from crawler import seed_initial_data, start_scheduler, start_watchdog, run_crawl_job, check_crawler_health, scheduler_status, LAST_CRAWL_STALE_MINUTES
 from backup import start_daily_backup
@@ -38,7 +40,21 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 # 静态资源版本号（修改静态文件时递增，用于缓存失效）
-ASSET_VERSION = '12'
+ASSET_VERSION = '13'
+
+# 管理员邮箱白名单（逗号分隔），注册时命中会自动授予管理员角色
+ADMIN_EMAILS = {
+    e.strip().lower() for e in os.environ.get('ADMIN_EMAILS', '').split(',') if e.strip()
+}
+
+
+def _int_arg(name, default, min_value=1, max_value=100):
+    """解析整数查询参数并限制范围，非法输入回退为默认值"""
+    try:
+        val = int(request.args.get(name, default))
+    except (TypeError, ValueError):
+        val = default
+    return max(min_value, min(val, max_value))
 
 
 def require_auth(f):
@@ -53,13 +69,43 @@ def require_auth(f):
     return wrapper
 
 
+def require_admin(f):
+    """API 管理员鉴权装饰器：未登录 401，普通用户 403"""
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        user = _get_current_user()
+        if not user:
+            return jsonify({'success': False, 'error': '请先登录'}), 401
+        if not user.get('is_admin'):
+            return jsonify({'success': False, 'error': '需要管理员权限'}), 403
+        return f(*args, **kwargs)
+    return wrapper
+
+
 # ============================================================
 # SSR 渲染辅助函数
 # ============================================================
 
-_PLATFORM_COLORS = {'youtube': '#FF0000', 'tiktok': '#000000', 'github': '#6e5494', 'hackernews': '#FF6600', 'bilibili': '#00A1D6', 'blog': '#0ea5e9', 'reddit': '#FF4500'}
-_PLATFORM_ICONS = {'youtube': 'YT', 'tiktok': 'TT', 'github': 'GH', 'hackernews': 'HN', 'bilibili': 'BL', 'blog': 'BG', 'reddit': 'RD'}
-_PLATFORM_NAMES = {'youtube': 'YouTube', 'tiktok': 'TikTok', 'github': 'GitHub', 'hackernews': 'Hacker News', 'bilibili': 'Bilibili', 'blog': 'Blog', 'reddit': 'Reddit'}
+_PLATFORM_COLORS = {
+    'youtube': '#FF0000', 'tiktok': '#000000', 'github': '#6e5494',
+    'hackernews': '#FF6600', 'bilibili': '#00A1D6', 'blog': '#0ea5e9',
+    'reddit': '#FF4500', 'github_trending': '#24292f', 'ithome': '#e60012',
+    'leiphone': '#00a383', 'sspai': '#e03e2d', 'solidot': '#ff6600',
+    'oschina': '#d2691e',
+}
+_PLATFORM_ICONS = {
+    'youtube': 'YT', 'tiktok': 'TT', 'github': 'GH', 'hackernews': 'HN',
+    'bilibili': 'BL', 'blog': 'BG', 'reddit': 'RD', 'github_trending': 'GT',
+    'ithome': 'IT', 'leiphone': 'LP', 'sspai': 'SP', 'solidot': 'SD',
+    'oschina': 'OS',
+}
+_PLATFORM_NAMES = {
+    'youtube': 'YouTube', 'tiktok': 'TikTok', 'github': 'GitHub',
+    'hackernews': 'Hacker News', 'bilibili': 'Bilibili', 'blog': 'Blog',
+    'reddit': 'Reddit', 'github_trending': 'GitHub Trending',
+    'ithome': 'IT之家', 'leiphone': '雷峰网', 'sspai': '少数派',
+    'solidot': 'Solidot', 'oschina': '开源中国',
+}
 _CATEGORY_NAMES = {'tech': '科技', 'ai': 'AI', 'opensource': '开源'}
 
 
@@ -225,6 +271,14 @@ def index():
         f'src="/js/app.js?v={ASSET_VERSION}"'
     )
     html_content = html_content.replace(
+        'src="/js/theme.js"',
+        f'src="/js/theme.js?v={ASSET_VERSION}"'
+    )
+    html_content = html_content.replace(
+        'src="/js/auth.js"',
+        f'src="/js/auth.js?v={ASSET_VERSION}"'
+    )
+    html_content = html_content.replace(
         'src="/js/crawler-status.js"',
         f'src="/js/crawler-status.js?v={ASSET_VERSION}"'
     )
@@ -277,8 +331,9 @@ def index():
 
 @app.route('/admin')
 def admin():
-    """管理后台（需登录）"""
-    if not _get_current_user():
+    """管理后台（仅管理员）"""
+    user = _get_current_user()
+    if not user or not user.get('is_admin'):
         return redirect('/')
     return send_from_directory(TEMPLATES_DIR, 'admin.html')
 
@@ -309,8 +364,9 @@ def blog_detail(post_id):
 
 @app.route('/admin/blog')
 def admin_blog():
-    """博客管理页（需登录）"""
-    if not _get_current_user():
+    """博客管理页（仅管理员）"""
+    user = _get_current_user()
+    if not user or not user.get('is_admin'):
         return redirect('/')
     return send_from_directory(TEMPLATES_DIR, 'admin-blog.html')
 
@@ -325,8 +381,8 @@ def api_articles():
     category = request.args.get('category', 'all')
     search = request.args.get('search', '')
     sort = request.args.get('sort', 'latest')
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 20))
+    page = _int_arg('page', 1)
+    limit = _int_arg('limit', 20)
 
     result = get_articles(category=category, search=search, sort=sort, page=page, limit=limit)
     return jsonify({'success': True, 'data': result})
@@ -335,7 +391,7 @@ def api_articles():
 @app.route('/api/articles/hot', methods=['GET'])
 def api_hot_articles():
     """获取热门推荐文章"""
-    limit = int(request.args.get('limit', 10))
+    limit = _int_arg('limit', 10, max_value=50)
     articles = get_hot_articles(limit=limit)
     return jsonify({'success': True, 'data': articles})
 
@@ -346,8 +402,8 @@ def api_home():
     category = request.args.get('category', 'all')
     search = request.args.get('search', '')
     sort = request.args.get('sort', 'latest')
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 20))
+    page = _int_arg('page', 1)
+    limit = _int_arg('limit', 20)
 
     articles_data = get_articles(category=category, search=search, sort=sort, page=page, limit=limit)
     hot_articles = get_hot_articles(limit=10)
@@ -395,7 +451,7 @@ def api_article_detail(article_id):
 
 
 @app.route('/api/stats', methods=['GET'])
-@require_auth
+@require_admin
 def api_stats():
     """获取数据统计"""
     stats = get_stats()
@@ -403,16 +459,16 @@ def api_stats():
 
 
 @app.route('/api/crawl-logs', methods=['GET'])
-@require_auth
+@require_admin
 def api_crawl_logs():
     """获取爬取日志"""
-    limit = int(request.args.get('limit', 20))
+    limit = _int_arg('limit', 20)
     logs = get_crawl_logs(limit=limit)
     return jsonify({'success': True, 'data': logs})
 
 
 @app.route('/api/crawl/trigger', methods=['POST'])
-@require_auth
+@require_admin
 def api_trigger_crawl():
     """手动触发一次爬取"""
     try:
@@ -460,6 +516,12 @@ def api_platforms():
                 {'id': 'blog', 'name': 'Blog', 'icon': 'BG', 'color': '#0ea5e9'},
                 {'id': 'reddit', 'name': 'Reddit', 'icon': 'RD', 'color': '#FF4500'},
                 {'id': 'youtube', 'name': 'YouTube', 'icon': 'YT', 'color': '#FF0000'},
+                {'id': 'github_trending', 'name': 'GitHub Trending', 'icon': 'GT', 'color': '#24292f'},
+                {'id': 'ithome', 'name': 'IT之家', 'icon': 'IT', 'color': '#e60012'},
+                {'id': 'leiphone', 'name': '雷峰网', 'icon': 'LP', 'color': '#00a383'},
+                {'id': 'sspai', 'name': '少数派', 'icon': 'SP', 'color': '#e03e2d'},
+                {'id': 'solidot', 'name': 'Solidot', 'icon': 'SD', 'color': '#ff6600'},
+                {'id': 'oschina', 'name': '开源中国', 'icon': 'OS', 'color': '#d2691e'},
             ],
             'categories': [
                 {'id': 'all', 'name': '全部'},
@@ -474,6 +536,15 @@ def api_platforms():
 # ============================================================
 # 用户认证 API
 # ============================================================
+
+def _client_ip():
+    """获取客户端 IP；仅当配置了受信代理时才信任 X-Forwarded-For"""
+    if os.environ.get('USE_X_FORWARDED_FOR', '0') == '1':
+        xff = request.headers.get('X-Forwarded-For', '')
+        if xff:
+            return xff.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
 
 def _get_current_user():
     """从请求头提取 token 并返回用户信息，未登录返回 None"""
@@ -498,6 +569,11 @@ def api_register():
     username = (data.get('username') or '').strip()
     password = data.get('password') or ''
 
+    # 注册限流：同一 IP 每小时最多 10 次
+    allowed, _, retry_after = check_rate_limit(f'regip:{_client_ip()}', 10, 3600)
+    if not allowed:
+        return jsonify({'success': False, 'error': f'注册过于频繁，请 {retry_after} 秒后再试'}), 429
+
     # 输入验证
     if not email or '@' not in email:
         return jsonify({'success': False, 'error': '请输入有效的邮箱地址'}), 400
@@ -513,7 +589,10 @@ def api_register():
 
     # 创建用户
     password_hash = generate_password_hash(password)
-    user_id = create_user(email, username, password_hash)
+    user_id = create_user(
+        email, username, password_hash,
+        is_admin=1 if email in ADMIN_EMAILS else 0
+    )
     if not user_id:
         return jsonify({'success': False, 'error': '注册失败，请重试'}), 500
 
@@ -544,9 +623,22 @@ def api_login():
     if not email or not password:
         return jsonify({'success': False, 'error': '邮箱和密码不能为空'}), 400
 
+    # 登录限流：按邮箱（5 次/15 分钟）和 IP（20 次/15 分钟）双重限制
+    email_key = f'login:{email}'
+    for key, max_attempts, window in [
+        (email_key, 5, 15 * 60),
+        (f'loginip:{_client_ip()}', 20, 15 * 60),
+    ]:
+        allowed, _, retry_after = check_rate_limit(key, max_attempts, window)
+        if not allowed:
+            return jsonify({'success': False, 'error': f'尝试过于频繁，请 {retry_after} 秒后再试'}), 429
+
     user = get_user_by_email(email)
     if not user or not check_password_hash(user['password_hash'], password):
         return jsonify({'success': False, 'error': '邮箱或密码错误'}), 401
+
+    # 登录成功，清除该邮箱的失败计数
+    clear_rate_limit(email_key)
 
     # 创建会话
     token = secrets.token_urlsafe(32)
@@ -593,8 +685,8 @@ def api_favorites_list():
     if not user:
         return jsonify({'success': False, 'error': '请先登录'}), 401
 
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 20))
+    page = _int_arg('page', 1)
+    limit = _int_arg('limit', 20)
     result = get_favorites(user['id'], page=page, limit=limit)
     return jsonify({'success': True, 'data': result})
 
@@ -630,13 +722,114 @@ def api_remove_favorite(article_id):
 # 博客文章 API
 # ============================================================
 
+# 服务端博客 HTML 消毒：白名单标签 + 白名单属性 + 安全 URL，防止存储型 XSS
+_ALLOWED_BLOG_TAGS = {
+    'p', 'br', 'strong', 'em', 'b', 'i', 'u', 's', 'h2', 'h3', 'h4',
+    'ul', 'ol', 'li', 'a', 'pre', 'code', 'blockquote', 'hr',
+    'span', 'div', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+}
+_ALLOWED_BLOG_ATTRS = {
+    'a': {'href', 'title'},
+    'img': {'src', 'alt', 'title'},
+    'th': {'colspan', 'rowspan'},
+    'td': {'colspan', 'rowspan'},
+}
+_SAFE_URL_SCHEMES = ('http', 'https', 'mailto')
+
+
+def _safe_blog_url(value):
+    value = (value or '').strip()
+    if not value or any(ch.isspace() for ch in value):
+        return ''
+    if ':' in value:
+        scheme = value.split(':', 1)[0].lower()
+        return value if scheme in _SAFE_URL_SCHEMES else ''
+    return value  # 相对链接（如 /blog/1）
+
+
+class _BlogSanitizer(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self._stack = []  # (tag, allowed) 元组栈
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        if tag not in _ALLOWED_BLOG_TAGS:
+            self._stack.append((tag, False))
+            return
+        self._stack.append((tag, True))
+        self.parts.append(self._render_tag(tag, attrs))
+
+    def handle_startendtag(self, tag, attrs):
+        tag = tag.lower()
+        if tag not in _ALLOWED_BLOG_TAGS:
+            return
+        self.parts.append(self._render_tag(tag, attrs, self_closing=True))
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        allowed = False
+        for i in range(len(self._stack) - 1, -1, -1):
+            if self._stack[i][0] == tag:
+                _, allowed = self._stack.pop(i)
+                break
+        if allowed:
+            self.parts.append(f'</{tag}>')
+
+    def handle_data(self, data):
+        # 被跳过的标签（script/iframe 等）内部内容不输出
+        if any(not allowed for _, allowed in self._stack):
+            return
+        self.parts.append(html_module.escape(data))
+
+    def _render_tag(self, tag, attrs, self_closing=False):
+        allowed = _ALLOWED_BLOG_ATTRS.get(tag, set())
+        rendered = ['<', tag]
+        has_src = False
+        has_href = False
+        for name, value in attrs:
+            name = name.lower()
+            if name not in allowed or value is None:
+                continue
+            if name == 'href':
+                value = _safe_blog_url(value)
+                if not value:
+                    continue
+                has_href = True
+            elif name == 'src':
+                if not value.startswith(('http://', 'https://')):
+                    continue
+                has_src = True
+            rendered.append(f' {name}="{html_module.escape(value, quote=True)}"')
+        if tag == 'img' and not has_src:
+            return ''
+        if tag == 'a' and has_href:
+            rendered.append(' rel="noopener noreferrer" target="_blank"')
+        rendered.append('/>' if self_closing else '>')
+        return ''.join(rendered)
+
+
+def _sanitize_blog_html(raw):
+    """服务端博客内容消毒入口"""
+    if not raw:
+        return ''
+    parser = _BlogSanitizer()
+    try:
+        parser.feed(raw)
+        parser.close()
+    except Exception:
+        return ''
+    return ''.join(parser.parts)
+
+
 @app.route('/api/blog/posts', methods=['GET'])
 def api_blog_posts():
     """获取博客文章列表"""
     status = request.args.get('status', 'published')
     category = request.args.get('category', 'all')
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 10))
+    page = _int_arg('page', 1)
+    limit = _int_arg('limit', 10)
 
     result = get_blog_posts(status=status, category=category, page=page, limit=limit)
     return jsonify({'success': True, 'data': result})
@@ -656,18 +849,22 @@ def api_blog_post_detail(post_id):
 
 
 @app.route('/api/blog/posts', methods=['POST'])
-@require_auth
+@require_admin
 def api_create_blog_post():
     """创建博客文章"""
     data = request.get_json()
     if not data or not data.get('title') or not data.get('content'):
         return jsonify({'success': False, 'error': '标题和内容不能为空'}), 400
 
+    content = _sanitize_blog_html(data['content'])
+    if not content.strip():
+        return jsonify({'success': False, 'error': '内容不能为空'}), 400
+
     post_id = create_blog_post(
-        title=data['title'],
-        content=data['content'],
-        excerpt=data.get('excerpt', ''),
-        author=data.get('author', 'TechNews'),
+        title=(data.get('title') or '').strip()[:200],
+        content=content,
+        excerpt=(data.get('excerpt') or '')[:500],
+        author=(data.get('author') or 'TechNews')[:50],
         category=data.get('category', 'tech'),
         status=data.get('status', 'published'),
     )
@@ -676,18 +873,27 @@ def api_create_blog_post():
 
 
 @app.route('/api/blog/posts/<int:post_id>', methods=['PUT'])
-@require_auth
+@require_admin
 def api_update_blog_post(post_id):
     """更新博客文章"""
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'error': '无更新数据'}), 400
 
+    if 'title' in data and not (data.get('title') or '').strip():
+        return jsonify({'success': False, 'error': '标题不能为空'}), 400
+
+    content = data.get('content')
+    if content is not None:
+        content = _sanitize_blog_html(content)
+        if not content.strip():
+            return jsonify({'success': False, 'error': '内容不能为空'}), 400
+
     ok = update_blog_post(
         post_id,
-        title=data.get('title'),
-        content=data.get('content'),
-        excerpt=data.get('excerpt'),
+        title=(data.get('title') or '').strip() if 'title' in data else None,
+        content=content,
+        excerpt=data.get('excerpt')[:500] if data.get('excerpt') is not None else None,
         category=data.get('category'),
         status=data.get('status'),
     )
@@ -699,7 +905,7 @@ def api_update_blog_post(post_id):
 
 
 @app.route('/api/blog/posts/<int:post_id>', methods=['DELETE'])
-@require_auth
+@require_admin
 def api_delete_blog_post(post_id):
     """删除博客文章"""
     ok = delete_blog_post(post_id)

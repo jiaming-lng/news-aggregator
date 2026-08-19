@@ -143,8 +143,8 @@ def _parse_timestamp(raw):
     # ISO 8601: 2026-08-04T10:30:00Z 或 2026-08-04T10:30:00.000Z
     try:
         dt = datetime.fromisoformat(raw.replace('Z', '+00:00'))
-        # 转为本地时间
-        dt = dt.replace(tzinfo=None)
+        # 先转成本地时间再去掉时区，否则 UTC 会按本地时间展示，差 8 小时
+        dt = dt.astimezone().replace(tzinfo=None)
         return dt.strftime('%Y-%m-%d %H:%M:%S')
     except (ValueError, TypeError):
         pass
@@ -160,7 +160,8 @@ def _parse_timestamp(raw):
     # RFC 822: Wed, 04 Aug 2026 10:30:00 GMT（YouTube RSS）
     try:
         dt = parsedate_to_datetime(raw)
-        dt = dt.replace(tzinfo=None)
+        # 统一转成本地时间（RFC 822 多为 GMT）
+        dt = dt.astimezone().replace(tzinfo=None)
         return dt.strftime('%Y-%m-%d %H:%M:%S')
     except (ValueError, TypeError):
         pass

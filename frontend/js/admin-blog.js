@@ -167,7 +167,8 @@
 
   function updatePreview() {
     var content = dom.postContent.value;
-    dom.postPreview.innerHTML = content || '<p style="color: var(--text-muted);">在上方输入内容后这里会显示预览...</p>';
+    var safe = window.TechNewsSanitize ? window.TechNewsSanitize.sanitizeHtml(content) : content;
+    dom.postPreview.innerHTML = safe || '<p style="color: var(--text-muted);">在上方输入内容后这里会显示预览...</p>';
   }
 
   // 编辑器工具栏
@@ -288,11 +289,17 @@
 
   // 启动
   function init() {
-    // 登录检查：未登录引导登录，不加载数据
+    // 权限检查：未登录引导登录，普通用户提示无权限
     if (window.TechNewsAuth && !window.TechNewsAuth.isLoggedIn()) {
       var list = dom.postList;
       if (list) {
         list.innerHTML = '<p style="color: var(--text-muted); padding: 40px; text-align: center;">博客管理需要登录后才能访问 🔒<br><br><button onclick="window.TechNewsAuthModal.open(\'login\')" style="padding: 10px 28px; border-radius: 100px; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; cursor: pointer;">去登录</button></p>';
+      }
+      return;
+    }
+    if (window.TechNewsAuth && window.TechNewsAuth.user && !window.TechNewsAuth.user.is_admin) {
+      if (dom.postList) {
+        dom.postList.innerHTML = '<p style="color: var(--text-muted); padding: 40px; text-align: center;">博客管理仅限管理员访问 🔒</p>';
       }
       return;
     }

@@ -30,7 +30,8 @@ def crawl_github_trending():
     req = urllib.request.Request(GITHUB_TRENDING_URL, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
-            html = resp.read().decode('utf-8')
+            # 限制读取大小，避免 IncompleteRead
+            html = resp.read(500000).decode('utf-8', errors='ignore')
     except Exception as e:
         print(f"[Crawler] GitHub Trending: 请求失败 - {e}")
         return 0, 0
@@ -141,13 +142,14 @@ def crawl_ai_news():
 
             # 两种解析策略：先 ET，失败则正则提取
             items = []
+            root = None
             try:
                 root = ET.fromstring(xml_text)
                 items = root.findall('.//item') or root.findall('.//entry')
             except ET.ParseError:
                 pass
 
-            # 正则兜底：直接提取 <item> 和 <entry> 块
+            # 正则兜底：ET 解析失败或找不到条目时，直接提取 <item> / <entry> 块
             if not items:
                 for tag in ['item', 'entry']:
                     blocks = re.findall(
@@ -159,28 +161,27 @@ def crawl_ai_news():
 
             if not items:
                 continue
-            items = root.findall('.//item') or root.findall('.//entry')
-            if not items:
-                continue
 
             from crawler import insert_article, _categorize, _parse_timestamp
 
             for item in items[:15]:
                 # 统一提取字段（Element 对象或字符串块）
+                # 注意：不能用 hasattr(block, 'find') 判断，字符串也有 .find() 方法
                 def get_text(block, tag):
-                    if hasattr(block, 'find'):
-                        el = block.find(tag)
-                        if el is not None:
-                            return (el.text or '').strip()
+                    if isinstance(block, str):
+                        # 字符串块：用正则提取
+                        m = re.search(
+                            rf'<{tag}[^>]*>(.*?)</{tag}>',
+                            block, re.DOTALL | re.IGNORECASE
+                        )
+                        if m:
+                            t = re.sub(r'<[^>]+>', '', m.group(1))
+                            return ' '.join(t.split())
                         return ''
-                    # 字符串块：用正则提取
-                    m = re.search(
-                        rf'<{tag}[^>]*>(.*?)</{tag}>',
-                        block if isinstance(block, str) else '', re.DOTALL | re.IGNORECASE
-                    )
-                    if m:
-                        t = re.sub(r'<[^>]+>', '', m.group(1))
-                        return ' '.join(t.split())
+                    # Element 对象
+                    el = block.find(tag)
+                    if el is not None:
+                        return (el.text or '').strip()
                     return ''
 
                 title = get_text(item, 'title')

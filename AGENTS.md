@@ -102,7 +102,7 @@ docker exec technews python backend/crawler.py
 3. **数据库是 SQLite 单写者**：不适合高并发；MVP 够用。
 4. **新增数据源**：在 `crawler.py` 写 `crawl_xxx()`（返回 `(new, fetched)`），加入 `run_crawl_job` 的 `sources` 列表；平台展示信息在 `app.py` 的 PLATFORM 映射。
 5. **去重**：`insert_article()` 按 `source_url` 或 `title` 去重，重复会跳过。
-6. **博客 API 无认证**：POST/PUT/DELETE `/api/blog/*` 没有鉴权，部署公网前需加。
+6. **博客 API 管理员鉴权**：POST/PUT/DELETE `/api/blog/*` 及管理接口要求管理员角色；注册邮箱命中 `ADMIN_EMAILS` 环境变量（逗号分隔）自动成为管理员。
 
 ---
 
@@ -111,7 +111,7 @@ docker exec technews python backend/crawler.py
 - [ ] `crawl_github_trending` 在 VPS 上偶发 `IncompleteRead`，已加 500KB 读取上限，需持续观察。
 - [ ] Reddit / YouTube 在国内环境无法抓取（GFW），属预期降级，不影响其他源。
 - [ ] VPS 2026-09-09 到期，需续费或迁移。
-- [ ] 博客 API（`/api/blog/*` 的 POST/PUT/DELETE）缺鉴权，部署公网前需加。
+- [x] 博客 API 已加管理员鉴权 + 登录/注册限流 + 博客内容服务端消毒。
 
 ---
 

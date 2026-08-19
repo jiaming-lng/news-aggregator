@@ -139,7 +139,7 @@ docker push ghcr.io/jiaming-lng/technews:latest
 3. **数据与镜像分离**：SQLite 在 `backend/data/`，用 named volume 持久化，镜像本身无状态。
 4. **最小权限**：用非 root 的 `appuser` 运行 gunicorn。
 5. **健康检查**：`healthcheck` 让 Docker 知道容器是否真活（不只是进程在）。
-6. **可改进项**：gunicorn 多 worker 会各自启动爬虫调度线程（render 现状也如此），更优做法是拆出独立 crawler 服务或 `--workers 1`。
+6. **调度器单实例**：已通过 gunicorn `--preload` 解决——`wsgi.py` 的 `initialize()` 只在 master 进程执行一次，worker 不会重复启动爬虫调度/看门狗/备份线程；若将来拆出独立 crawler 服务可进一步解耦。
 
 ## 七、排错
 

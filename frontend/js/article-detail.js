@@ -29,17 +29,17 @@
   }
 
   function getPlatformColor(platform) {
-    var map = { youtube: '#FF0000', github: '#6e5494', hackernews: '#FF6600', bilibili: '#00A1D6', blog: '#0ea5e9', reddit: '#FF4500' };
+    var map = { youtube: '#FF0000', github: '#6e5494', hackernews: '#FF6600', bilibili: '#00A1D6', blog: '#0ea5e9', reddit: '#FF4500', github_trending: '#24292f', ithome: '#e60012', leiphone: '#00a383', sspai: '#e03e2d', solidot: '#ff6600', oschina: '#d2691e' };
     return map[platform] || '#64748b';
   }
 
   function getPlatformIcon(platform) {
-    var map = { youtube: 'YT', github: 'GH', hackernews: 'HN', bilibili: 'BL', blog: 'BG', reddit: 'RD' };
+    var map = { youtube: 'YT', github: 'GH', hackernews: 'HN', bilibili: 'BL', blog: 'BG', reddit: 'RD', github_trending: 'GT', ithome: 'IT', leiphone: 'LP', sspai: 'SP', solidot: 'SD', oschina: 'OS' };
     return map[platform] || '##';
   }
 
   function getPlatformName(platform) {
-    var map = { youtube: 'YouTube', github: 'GitHub', hackernews: 'Hacker News', bilibili: 'Bilibili', blog: 'Blog', reddit: 'Reddit' };
+    var map = { youtube: 'YouTube', github: 'GitHub', hackernews: 'Hacker News', bilibili: 'Bilibili', blog: 'Blog', reddit: 'Reddit', github_trending: 'GitHub Trending', ithome: 'IT之家', leiphone: '雷峰网', sspai: '少数派', solidot: 'Solidot', oschina: '开源中国' };
     return map[platform] || platform;
   }
 

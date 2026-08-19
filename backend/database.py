@@ -96,6 +96,12 @@ def init_db():
 
         CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
+        CREATE TABLE IF NOT EXISTS rate_limits (
+            key TEXT PRIMARY KEY,
+            count INTEGER DEFAULT 0,
+            reset_at TIMESTAMP NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS favorites (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -109,6 +115,17 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
         CREATE INDEX IF NOT EXISTS idx_favorites_article ON favorites(article_id);
     """)
+
+    # 迁移：老库的 users 表可能没有 is_admin 字段
+    user_cols = [row[1] for row in cursor.execute("PRAGMA table_info(users)").fetchall()]
+    if 'is_admin' not in user_cols:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+
+    # 顺手清理已过期的限流记录
+    cursor.execute(
+        "DELETE FROM rate_limits WHERE reset_at < ?",
+        (datetime.now().strftime('%Y-%m-%d %H:%M:%S'),)
+    )
 
     conn.commit()
     conn.close()
@@ -428,10 +445,10 @@ def get_blog_posts(status=None, category=None, page=1, limit=10):
     conditions = []
     params = []
 
-    if status:
+    if status and status != 'all':
         conditions.append("status = ?")
         params.append(status)
-    else:
+    elif not status:
         # 默认只查已发布的
         conditions.append("status = 'published'")
 
@@ -439,7 +456,7 @@ def get_blog_posts(status=None, category=None, page=1, limit=10):
         conditions.append("category = ?")
         params.append(category)
 
-    where_clause = "WHERE " + " AND ".join(conditions)
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
 
     total = cursor.execute(
         f"SELECT COUNT(*) FROM blog_posts {where_clause}", params
@@ -572,15 +589,15 @@ def increment_blog_view(post_id):
 # 用户系统 CRUD
 # ============================================================
 
-def create_user(email, username, password_hash):
+def create_user(email, username, password_hash, is_admin=0):
     """创建用户，返回新用户 ID。邮箱已存在则返回 None"""
     conn = get_db()
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            INSERT INTO users (email, username, password_hash)
-            VALUES (?, ?, ?)
-        """, (email, username, password_hash))
+            INSERT INTO users (email, username, password_hash, is_admin)
+            VALUES (?, ?, ?, ?)
+        """, (email, username, password_hash, 1 if is_admin else 0))
         conn.commit()
         user_id = cursor.lastrowid
         conn.close()
@@ -604,7 +621,7 @@ def get_user_by_id(user_id):
     conn = get_db()
     cursor = conn.cursor()
     row = cursor.execute(
-        "SELECT id, email, username, created_at FROM users WHERE id = ?", (user_id,)
+        "SELECT id, email, username, is_admin, created_at FROM users WHERE id = ?", (user_id,)
     ).fetchone()
     conn.close()
     return dict(row) if row else None
@@ -656,6 +673,70 @@ def delete_session(token):
     """删除会话（登出）"""
     conn = get_db()
     conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
+    conn.commit()
+    conn.close()
+
+
+# ============================================================
+# 登录/注册限流（SQLite 持久化，gunicorn 多 worker 下同样生效）
+# ============================================================
+
+def check_rate_limit(key, max_attempts, window_seconds):
+    """检查并记录一次访问。
+
+    返回 (allowed, remaining, retry_after_seconds)：
+    - allowed: 本次是否放行
+    - remaining: 剩余可用次数（0 表示已被限流）
+    - retry_after_seconds: 被限流后需要等待的秒数
+    """
+    conn = get_db()
+    try:
+        now = datetime.now()
+        reset_at = (now + timedelta(seconds=window_seconds)).strftime('%Y-%m-%d %H:%M:%S')
+        row = conn.execute(
+            "SELECT count, reset_at FROM rate_limits WHERE key = ?", (key,)
+        ).fetchone()
+
+        if row:
+            try:
+                reset_dt = datetime.strptime(row['reset_at'], '%Y-%m-%d %H:%M:%S')
+            except (ValueError, TypeError):
+                reset_dt = now
+
+            if reset_dt <= now:
+                # 窗口已过，重置计数
+                conn.execute(
+                    "UPDATE rate_limits SET count = 1, reset_at = ? WHERE key = ?",
+                    (reset_at, key)
+                )
+                conn.commit()
+                return True, max_attempts - 1, 0
+
+            count = row['count'] + 1
+            if count > max_attempts:
+                retry_after = int((reset_dt - now).total_seconds()) + 1
+                return False, 0, retry_after
+
+            conn.execute(
+                "UPDATE rate_limits SET count = ? WHERE key = ?", (count, key)
+            )
+            conn.commit()
+            return True, max_attempts - count, 0
+
+        conn.execute(
+            "INSERT INTO rate_limits (key, count, reset_at) VALUES (?, 1, ?)",
+            (key, reset_at)
+        )
+        conn.commit()
+        return True, max_attempts - 1, 0
+    finally:
+        conn.close()
+
+
+def clear_rate_limit(key):
+    """登录成功后清除对应邮箱的失败计数"""
+    conn = get_db()
+    conn.execute("DELETE FROM rate_limits WHERE key = ?", (key,))
     conn.commit()
     conn.close()
 

@@ -89,14 +89,17 @@
       var userMenu = document.getElementById('userMenu');
       var loginBtn = document.getElementById('loginBtn');
       var userName = document.getElementById('userName');
+      var adminLink = document.querySelector('.admin-link');
 
       if (this.user) {
         if (userMenu) userMenu.style.display = '';
         if (loginBtn) loginBtn.style.display = 'none';
         if (userName) userName.textContent = this.user.username;
+        if (adminLink) adminLink.style.display = this.user.is_admin ? '' : 'none';
       } else {
         if (userMenu) userMenu.style.display = 'none';
         if (loginBtn) loginBtn.style.display = '';
+        if (adminLink) adminLink.style.display = 'none';
       }
 
       // 通知各页面更新收藏按钮

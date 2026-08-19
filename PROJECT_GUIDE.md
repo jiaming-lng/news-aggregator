@@ -136,6 +136,7 @@ news-aggregator/
 | email | TEXT UNIQUE | 邮箱（唯一） |
 | username | TEXT | 用户名 |
 | password_hash | TEXT | Werkzeug 密码哈希 |
+| is_admin | INTEGER | 是否管理员（0/1，注册邮箱命中 `ADMIN_EMAILS` 自动授予） |
 | created_at | TIMESTAMP | 注册时间 |
 
 ### sessions（登录会话）
@@ -218,16 +219,16 @@ UNIQUE(user_id, article_id) — 防止重复收藏
 |------|------|------|------|
 | GET | `/api/blog/posts` | 博客列表 | 否 |
 | GET | `/api/blog/posts/<id>` | 博客详情 | 否 |
-| POST | `/api/blog/posts` | 创建博客 | 否 |
-| PUT | `/api/blog/posts/<id>` | 更新博客 | 否 |
-| DELETE | `/api/blog/posts/<id>` | 删除博客 | 否 |
+| POST | `/api/blog/posts` | 创建博客 | 是（管理员） |
+| PUT | `/api/blog/posts/<id>` | 更新博客 | 是（管理员） |
+| DELETE | `/api/blog/posts/<id>` | 删除博客 | 是（管理员） |
 
 ### 管理
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/stats` | 数据统计 |
-| GET | `/api/crawl-logs` | 爬取日志 |
-| POST | `/api/crawl/trigger` | 手动触发爬取 |
+| GET | `/api/stats` | 数据统计（管理员） |
+| GET | `/api/crawl-logs` | 爬取日志（管理员） |
+| POST | `/api/crawl/trigger` | 手动触发爬取（管理员） |
 
 ### 页面路由
 | 路径 | 模板 | 说明 |
@@ -322,7 +323,7 @@ UNIQUE(user_id, article_id) — 防止重复收藏
 5. **`__pycache__` 缓存**：修改代码后需清除 `backend/__pycache__/`，否则可能运行旧代码
 6. **端口 5000 占用**：重启前需先 `netstat -ano | findstr :5000` 查 PID，再 `Stop-Process -Id <PID> -Force`
 7. **SSR 卡片收藏状态**：首页加载时已登录用户的收藏按钮不会自动标红（需额外调批量查询 API），这是个待优化点
-8. **博客 API 无认证保护**：POST/PUT/DELETE 没有鉴权，部署到公网前需加
+8. **管理员角色与限流**：管理接口要求 `is_admin=1`；登录/注册有 SQLite 限流（邮箱 5 次/15 分钟、IP 20 次/15 分钟、注册 10 次/小时）
 
 ---
 
@@ -341,7 +342,7 @@ UNIQUE(user_id, article_id) — 防止重复收藏
 
 ### 注意事项
 - Render 免费套餐 SQLite 是临时存储（重启清空），持久化需换 PostgreSQL
-- 博客 API 需加认证保护后再部署公网
+- 管理员邮箱通过 `ADMIN_EMAILS` 环境变量配置（逗号分隔），部署公网前请先设置
 
 ---
 

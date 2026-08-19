@@ -43,7 +43,9 @@ USER appuser
 EXPOSE 5000
 
 # 启动命令：与仓库 Procfile / render.yaml 一致
+# --preload：让 wsgi.py 的 initialize() 只在 master 进程执行一次，
+# 否则 2 个 worker 会各自启动一套爬虫调度器/看门狗/备份线程，导致重复爬取
 # --chdir backend 保证 gunicorn 能 import wsgi:app
 # wsgi.py 导入时自动 initialize()：建库 + 种子数据 + 启动爬虫调度/看门狗
-CMD ["gunicorn", "--chdir", "backend", "wsgi:app", \
+CMD ["gunicorn", "--chdir", "backend", "--preload", "wsgi:app", \
      "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "4", "--timeout", "120"]
