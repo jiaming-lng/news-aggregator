@@ -13,6 +13,7 @@ services:
     environment:
       - FLASK_DEBUG=0
       - TZ=Asia/Shanghai          # 容器时区，影响爬虫时间显示
+      - ADMIN_EMAILS=jiaming1899@qq.com
     volumes:
       # bind mount：直接挂载宿主机现有的 backend/data 目录
       # 迁移 VPS 时：现有 263 篇 SQLite 数据原地复用，零迁移、零丢失
@@ -28,4 +29,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s           # 给爬虫首次抓取留足时间
-
