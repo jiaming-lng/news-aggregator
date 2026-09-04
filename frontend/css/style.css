@@ -586,6 +586,7 @@ a:hover { color: var(--accent-hover); }
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.5;
+  overflow-wrap: anywhere;
   transition: var(--transition);
 }
 
@@ -593,6 +594,7 @@ a:hover { color: var(--accent-hover); }
   font-size: 0.88rem;
   color: var(--text-secondary);
   line-height: 1.6;
+  overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -1741,7 +1743,7 @@ a:hover { color: var(--accent-hover); }
 
   /* 文章列表单列 */
   .article-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   /* 热门推荐：触控滑动 */
