@@ -14,7 +14,7 @@ services:
       - FLASK_DEBUG=0
       - TZ=Asia/Shanghai          # 容器时区，影响爬虫时间显示
       - ADMIN_EMAILS=jiaming1899@qq.com
-      - BASE_URL=https://technews.dedyn.io
+      - BASE_URL=https://techorbit.cn
     volumes:
       # bind mount：直接挂载宿主机现有的 backend/data 目录
       # 迁移 VPS 时：现有 263 篇 SQLite 数据原地复用，零迁移、零丢失

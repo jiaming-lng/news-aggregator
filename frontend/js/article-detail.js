@@ -101,7 +101,7 @@
 
     // 标题
     document.getElementById('detailTitle').textContent = article.title;
-    document.title = article.title + ' - TechNews';
+    document.title = article.title + ' - TechOrbit';
 
     // 元信息
     var metaParts = [];

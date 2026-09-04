@@ -128,7 +128,7 @@
   function clearForm() {
     dom.postTitle.value = '';
     dom.postCategory.value = 'tech';
-    dom.postAuthor.value = 'TechNews';
+    dom.postAuthor.value = 'TechOrbit';
     dom.postExcerpt.value = '';
     dom.postContent.value = '';
     dom.postPreview.innerHTML = '';

@@ -1,5 +1,5 @@
 """
-资讯聚合网站 - Flask 后端服务
+个人技术分享网站 - Flask 后端服务
 提供 RESTful API 并托管前端静态文件
 支持 SSR 预渲染首页以提升 SEO 和首屏性能
 """
@@ -40,7 +40,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 # 静态资源版本号（修改静态文件时递增，用于缓存失效）
-ASSET_VERSION = '15'
+ASSET_VERSION = '16'
 
 # 管理员邮箱白名单（逗号分隔），注册时命中会自动授予管理员角色
 ADMIN_EMAILS = {
@@ -861,7 +861,7 @@ def api_create_blog_post():
         title=(data.get('title') or '').strip()[:200],
         content=content,
         excerpt=(data.get('excerpt') or '')[:500],
-        author=(data.get('author') or 'TechNews')[:50],
+        author=(data.get('author') or 'TechOrbit')[:50],
         category=data.get('category', 'tech'),
         status=data.get('status', 'published'),
     )
@@ -918,7 +918,7 @@ def api_delete_blog_post(post_id):
 
 # 站点基础 URL（用于 SEO 文件生成）
 import os as _os
-BASE_URL = _os.environ.get('BASE_URL', 'https://technews.dedyn.io').rstrip('/')
+BASE_URL = _os.environ.get('BASE_URL', 'https://techorbit.cn').rstrip('/')
 
 
 @app.route('/robots.txt')
@@ -1031,7 +1031,7 @@ def gzip_response(response):
 def initialize():
     """应用初始化：建库、填充种子数据、启动定时爬取"""
     print("=" * 50)
-    print("  TechNews 资讯聚合网站")
+    print("  TechOrbit 个人技术分享网站")
     print("=" * 50)
 
     init_db()
