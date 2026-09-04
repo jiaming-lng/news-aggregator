@@ -187,7 +187,10 @@ a:hover { color: var(--accent-hover); }
   font-size: 1.6rem;
 }
 .logo .logo-accent {
-  color: var(--accent);
+  background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .nav-tabs {
