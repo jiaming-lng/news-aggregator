@@ -23,9 +23,13 @@
         if (!st.healthy) {
           var minsEl = document.getElementById('crawlerAlertMinutes');
           if (minsEl) {
-            minsEl.textContent = st.minutes_since_last_crawl != null
-              ? st.minutes_since_last_crawl
-              : '--';
+            if (st.minutes_since_last_crawl != null) {
+              minsEl.textContent = st.minutes_since_last_crawl;
+            } else {
+              minsEl.textContent = (st.stale_threshold_minutes != null)
+                ? '>' + st.stale_threshold_minutes
+                : '未知';
+            }
           }
           alertEl.style.display = 'flex';
         } else {

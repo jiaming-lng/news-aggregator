@@ -218,18 +218,18 @@ def get_articles(category=None, search=None, sort='latest', page=1, limit=20):
 
 
 def get_hot_articles(limit=10):
-    """获取热门推荐文章（混合榜：真热门视频 + 最新博客）
+    """热门推荐：核心分类 + 平台去重 + 相关度加权。
 
-    设计目标：兼顾「热」与「新」，让博客类内容也能上榜。
-    - 视频/有播放量的：按时衰热度（view_count / 自抓取以来的小时数）取前 7
-    - 博客类（view=0 无热度字段）：按新鲜度（fetched_at 倒序）取前 3
-    - 两部分合并后仍按热度排序：热门视频在前，最新博客垫后但不缺席
+    - 只保留 tech/ai/opensource 三个核心分类，保持「科技·AI·开源」定位
+    - 单个平台最多上榜 2 条，避免 B 站等单一来源霸榜
+    - ai/opensource 加权、tech 降权；B 站播放量虚高额外降权
+    - 无播放量的博客按新鲜度补位，保证「新」的内容也有露脸机会
     """
     conn = get_db()
     cursor = conn.cursor()
 
-    # 有播放量的（视频/HN 等）：时衰热度 TOP (limit*7/10)
-    hot_videos = cursor.execute("""
+    # 候选池：有热度字段、近 7 天、核心分类
+    pool = cursor.execute("""
         SELECT *,
                (CAST(view_count AS REAL) / MAX(1.0,
                    (julianday('now') - julianday(fetched_at)) * 24.0
@@ -237,28 +237,54 @@ def get_hot_articles(limit=10):
         FROM articles
         WHERE view_count > 0
           AND fetched_at >= datetime('now', '-7 days')
+          AND category IN ('tech', 'ai', 'opensource')
         ORDER BY hot_score DESC
-        LIMIT ?
-    """, (max(1, limit * 7 // 10),)).fetchall()
+        LIMIT 60
+    """).fetchall()
 
-    # 博客类（无播放量字段）：最新 TOP (limit*3/10)
+    platform_cap = 2
+    category_weight = {'ai': 1.2, 'opensource': 1.1, 'tech': 0.8}
+    bilibili_penalty = 0.5
+
+    platform_count = {}
+    scored = []
+    for row in pool:
+        item = dict(row)
+        platform = item.get('source_platform') or ''
+        category = item.get('category') or ''
+        # B 站默认归到 tech 的多为非科技内容，直接跳过
+        if platform == 'Bilibili' and category == 'tech':
+            continue
+        if platform_count.get(platform, 0) >= platform_cap:
+            continue
+        platform_count[platform] = platform_count.get(platform, 0) + 1
+        weight = category_weight.get(category, 1.0)
+        if platform == 'Bilibili':
+            weight *= bilibili_penalty
+        item['hot_score'] = (item.get('hot_score') or 0) * weight
+        scored.append(item)
+
+    scored.sort(key=lambda r: r['hot_score'], reverse=True)
+    hot_videos = scored[:max(1, limit * 7 // 10)]
+
+    # 无播放量内容（博客等）按新鲜度补位
     fresh_blogs = cursor.execute("""
-        SELECT *,
-               0 AS hot_score
+        SELECT *, 0 AS hot_score
         FROM articles
         WHERE (view_count = 0 OR view_count IS NULL)
           AND fetched_at >= datetime('now', '-24 hours')
+          AND category IN ('tech', 'ai', 'opensource')
         ORDER BY fetched_at DESC
         LIMIT ?
     """, (limit - len(hot_videos),)).fetchall()
+    fresh_blogs = [dict(row) for row in fresh_blogs]
 
     # 合并后按热度降序（博客 hot_score=0 自然垫后，但不缺席）
     merged = hot_videos + fresh_blogs
     merged.sort(key=lambda r: r['hot_score'], reverse=True)
 
-    articles = [dict(row) for row in merged[:limit]]
     conn.close()
-    return articles
+    return merged[:limit]
 
 
 def increment_view(article_id):

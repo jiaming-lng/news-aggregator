@@ -1133,6 +1133,17 @@ def check_crawler_health():
     """
     last = get_last_crawl_time()
     if not last:
+        # 回退：crawl_logs 为空时，用最新文章抓取时间近似“最近一次更新”
+        try:
+            conn = get_db()
+            try:
+                row = conn.execute("SELECT MAX(fetched_at) FROM articles").fetchone()
+                last = row[0] if row else None
+            finally:
+                conn.close()
+        except Exception:
+            last = None
+    if not last:
         return False, None, None
     try:
         last_dt = datetime.strptime(str(last)[:19], '%Y-%m-%d %H:%M:%S')

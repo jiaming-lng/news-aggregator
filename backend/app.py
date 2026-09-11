@@ -12,6 +12,7 @@ import io
 import html as html_module
 import secrets
 from datetime import datetime
+from email.utils import format_datetime
 from functools import wraps
 from html.parser import HTMLParser
 
@@ -40,7 +41,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 # 静态资源版本号（修改静态文件时递增，用于缓存失效）
-ASSET_VERSION = '17'
+ASSET_VERSION = '18'
 
 # 管理员邮箱白名单（逗号分隔），注册时命中会自动授予管理员角色
 ADMIN_EMAILS = {
@@ -958,6 +959,41 @@ def sitemap():
 
     lines.append('</urlset>')
     return Response('\n'.join(lines), content_type='application/xml; charset=utf-8')
+
+
+def _rss_date(ts):
+    """把时间戳转成 RSS 需要的 RFC 822 格式"""
+    try:
+        dt = datetime.strptime(str(ts)[:19], '%Y-%m-%d %H:%M:%S')
+        return format_datetime(dt)
+    except Exception:
+        return ''
+
+
+@app.route('/rss.xml')
+def rss_feed():
+    """RSS 订阅源：输出最新文章"""
+    data = get_articles(category='all', search='', sort='latest', page=1, limit=30)
+    items = []
+    for a in data['articles']:
+        link = f"{BASE_URL}/article/{a['id']}"
+        title = html_module.escape(str(a.get('title') or ''))
+        desc = html_module.escape(str(a.get('summary') or ''))
+        cat = html_module.escape(str(a.get('category') or ''))
+        pub = _rss_date(a.get('published_at'))
+        items.append(
+            f'<item><title>{title}</title><link>{link}</link><guid isPermaLink="true">{link}</guid>'
+            f'<category>{cat}</category><description>{desc}</description><pubDate>{pub}</pubDate></item>'
+        )
+    rss = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<rss version="2.0"><channel>'
+        f'<title>TechOrbit - 个人技术分享</title><link>{BASE_URL}/</link>'
+        f'<description>开发经验、开源项目与科技动态</description>'
+        + ''.join(items) +
+        '</channel></rss>'
+    )
+    return Response(rss, content_type='application/rss+xml; charset=utf-8')
 
 
 # ============================================================
