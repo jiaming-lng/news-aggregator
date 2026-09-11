@@ -41,7 +41,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 # 静态资源版本号（修改静态文件时递增，用于缓存失效）
-ASSET_VERSION = '18'
+ASSET_VERSION = '19'
 
 # 管理员邮箱白名单（逗号分隔），注册时命中会自动授予管理员角色
 ADMIN_EMAILS = {
@@ -367,6 +367,24 @@ def blog_detail(post_id):
 def admin_blog():
     """博客管理页面（纯前端壳，数据接口由 require_admin 保护）"""
     return send_from_directory(TEMPLATES_DIR, 'admin-blog.html')
+
+
+@app.route('/about')
+def about_page():
+    """关于我们"""
+    return send_from_directory(TEMPLATES_DIR, 'about.html')
+
+
+@app.route('/copyright')
+def copyright_page():
+    """版权声明"""
+    return send_from_directory(TEMPLATES_DIR, 'copyright.html')
+
+
+@app.route('/privacy')
+def privacy_page():
+    """隐私政策"""
+    return send_from_directory(TEMPLATES_DIR, 'privacy.html')
 
 
 # ============================================================

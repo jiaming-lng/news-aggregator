@@ -791,6 +791,43 @@ a:hover { color: var(--accent-hover); }
   margin-top: 40px;
 }
 
+/* ---- 静态说明页（关于 / 版权 / 隐私） ---- */
+.static-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+  color: var(--text-secondary);
+}
+.static-page h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+.static-page .static-date {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 24px;
+}
+.static-page h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 28px 0 10px;
+}
+.static-page p,
+.static-page li {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+.static-page ul {
+  padding-left: 20px;
+}
+.static-page a {
+  color: var(--accent);
+}
+
 /* ---- 管理后台样式 ---- */
 .admin-wrapper {
   max-width: 1280px;
